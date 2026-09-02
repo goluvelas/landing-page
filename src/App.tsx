@@ -554,8 +554,8 @@ const whatsappNumber = "573118192481";
 
 function whatsappLink(product?: Product, variantName?: string) {
   const message = product
-    ? `Hola Golú, vi el catálogo web y me interesa cotizar ${product.name}${variantName ? ` en presentación ${variantName}` : ""}. ¿Me cuentan más?`
-    : "Hola Golú, vi el catálogo web y quiero cotizar unas velas personalizadas. ¿Me ayudan?";
+    ? `Hola Golu, vi el catálogo web y me interesa cotizar ${product.name}${variantName ? ` en presentación ${variantName}` : ""}. ¿Me cuentan más?`
+    : "Hola Golu, vi el catálogo web y quiero cotizar unas velas personalizadas. ¿Me ayudan?";
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
@@ -640,8 +640,8 @@ function App() {
       </div>
 
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="Golú, ir al inicio">
-          <span className="brand-name">GOLÚ</span>
+        <a className="brand" href="#inicio" aria-label="Golu, ir al inicio">
+          <span className="brand-name">GOLU</span>
           <span className="brand-subtitle">velas artesanales</span>
         </a>
 
@@ -699,9 +699,9 @@ function App() {
             </div>
           </div>
 
-          <div className="hero-gallery" aria-label="Selección de productos Golú">
+          <div className="hero-gallery" aria-label="Selección de productos Golu">
             <figure className="hero-image hero-image-main">
-              <img src={asset("hero-collage.jpg")} alt="Colección de velas florales Golú en estuches" />
+              <img src={asset("hero-collage.jpg")} alt="Colección de velas florales Golu en estuches" />
               <figcaption>Hecho con intención</figcaption>
             </figure>
             <figure className="hero-image hero-image-small hero-image-top">
@@ -710,7 +710,7 @@ function App() {
             <figure className="hero-image hero-image-small hero-image-bottom">
               <img src={asset("hero-flowers.jpg")} alt="Velas artesanales en tonos rosados" />
             </figure>
-            <span className="hero-stamp" aria-hidden="true">GOLÚ<br />con amor</span>
+            <span className="hero-stamp" aria-hidden="true">GOLU<br />con amor</span>
           </div>
         </section>
 
@@ -860,7 +860,7 @@ function App() {
 
         <section className="custom-section" id="personaliza">
           <div className="custom-visual">
-            <img src={asset("hero-flowers.jpg")} alt="Flores y velas artesanales Golú" loading="lazy" />
+            <img src={asset("hero-flowers.jpg")} alt="Flores y velas artesanales Golu" loading="lazy" />
             <div className="custom-card">
               <Heart size={22} fill="currentColor" />
               <span>Cada pedido</span>
@@ -913,7 +913,7 @@ function App() {
 
       <footer>
         <div className="footer-brand">
-          <span className="brand-name">GOLÚ</span>
+          <span className="brand-name">GOLU</span>
           <p>Velas artesanales para toda ocasión.</p>
         </div>
         <div className="footer-links">
@@ -921,10 +921,10 @@ function App() {
           <a href="tel:+573118192481"><Phone size={16} /> +57 311 819 2481</a>
         </div>
         <div className="footer-social">
-          <a href="https://www.instagram.com/golu_velas" target="_blank" rel="noreferrer" aria-label="Instagram de Golú"><AtSign size={18} /></a>
+          <a href="https://www.instagram.com/golu_velas" target="_blank" rel="noreferrer" aria-label="Instagram de Golu"><AtSign size={18} /></a>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Golú Velas</span>
+          <span>© 2026 Golu Velas</span>
           <span>Precios en pesos colombianos. Sujeto a disponibilidad.</span>
         </div>
       </footer>
@@ -958,7 +958,7 @@ function App() {
               </div>
             </div>
             <div className="modal-content">
-              <span className="eyebrow">Referencia Golú</span>
+              <span className="eyebrow">Referencia Golu</span>
               <h2 id="modal-title">{selectedProduct.name}</h2>
               <p className="modal-description">{selectedProduct.description}</p>
               <div className="variant-list">

@@ -1,4 +1,4 @@
-# Catálogo web Golú
+# Catálogo web Golu
 
 Catálogo responsive de velas artesanales, listo para publicarse como sitio estático en GitHub Pages.
 
