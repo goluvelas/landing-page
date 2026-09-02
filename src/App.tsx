@@ -3,6 +3,7 @@ import {
   ArrowRight,
   AtSign,
   Check,
+  ChevronLeft,
   ChevronRight,
   Heart,
   Mail,
@@ -562,11 +563,25 @@ function App() {
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const [cardVariantIndexes, setCardVariantIndexes] = useState<Record<string, number>>({});
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const openProduct = (product: Product) => {
-    setSelectedVariantIndex(0);
+  const openProduct = (product: Product, variantIndex = 0) => {
+    setSelectedVariantIndex(variantIndex);
     setSelectedProduct(product);
+  };
+
+  const moveCardVariant = (product: Product, direction: -1 | 1) => {
+    const imageCount = variantImageSets[product.id]?.length ?? 1;
+    if (imageCount < 2) return;
+
+    setCardVariantIndexes((currentIndexes) => {
+      const currentIndex = currentIndexes[product.id] ?? 0;
+      return {
+        ...currentIndexes,
+        [product.id]: (currentIndex + direction + imageCount) % imageCount,
+      };
+    });
   };
 
   const filteredProducts = useMemo(() => {
@@ -764,26 +779,70 @@ function App() {
                 </header>
 
                 <div className="product-grid">
-                  {groupProducts.map((product) => (
-                    <article className="product-card" key={product.id}>
-                      <button className="product-image" type="button" onClick={() => openProduct(product)} aria-label={`Ver detalles de ${product.name}`}>
-                        <img src={product.image} alt={product.name} loading="lazy" />
-                        {product.tag && <span className="product-tag">{product.tag}</span>}
-                        <span className="product-view">Ver detalle <ArrowRight size={15} /></span>
-                      </button>
-                      <div className="product-info">
-                        <span className="product-category">{product.category}</span>
-                        <div className="product-title-row">
-                          <h3>{product.name}</h3>
-                          <span className="product-price">Desde {formatPrice(Math.min(...product.variants.map((variant) => variant.price)))}</span>
+                  {groupProducts.map((product) => {
+                    const galleryCount = variantImageSets[product.id]?.length ?? 0;
+                    const hasVariantGallery = galleryCount > 1;
+                    const cardVariantIndex = hasVariantGallery ? (cardVariantIndexes[product.id] ?? 0) : 0;
+                    const cardVariant = product.variants[cardVariantIndex] ?? product.variants[0];
+
+                    return (
+                      <article className="product-card" key={product.id}>
+                        <div className="product-image">
+                          <button
+                            className="product-image-open"
+                            type="button"
+                            onClick={() => openProduct(product, cardVariantIndex)}
+                            aria-label={`Ver detalles de ${product.name}, ${cardVariant.name}`}
+                          >
+                            <img
+                              key={getVariantImage(product, cardVariantIndex)}
+                              src={getVariantImage(product, cardVariantIndex)}
+                              alt={`${product.name} - ${cardVariant.name}`}
+                              loading="lazy"
+                            />
+                            {product.tag && <span className="product-tag">{product.tag}</span>}
+                            <span className="product-view">Ver detalle <ArrowRight size={15} /></span>
+                          </button>
+
+                          {hasVariantGallery && (
+                            <>
+                              <button
+                                className="card-gallery-arrow card-gallery-prev"
+                                type="button"
+                                onClick={() => moveCardVariant(product, -1)}
+                                aria-label={`Ver presentación anterior de ${product.name}`}
+                              >
+                                <ChevronLeft size={19} aria-hidden="true" />
+                              </button>
+                              <button
+                                className="card-gallery-arrow card-gallery-next"
+                                type="button"
+                                onClick={() => moveCardVariant(product, 1)}
+                                aria-label={`Ver siguiente presentación de ${product.name}`}
+                              >
+                                <ChevronRight size={19} aria-hidden="true" />
+                              </button>
+                              <div className="card-variant-caption" aria-live="polite">
+                                <span>{cardVariant.name}</span>
+                                <strong>{cardVariantIndex + 1}/{galleryCount}</strong>
+                              </div>
+                            </>
+                          )}
                         </div>
-                        <p>{product.description}</p>
-                        <button type="button" className="product-link" onClick={() => openProduct(product)}>
-                          Presentaciones <ChevronRight size={16} />
-                        </button>
-                      </div>
-                    </article>
-                  ))}
+                        <div className="product-info">
+                          <span className="product-category">{product.category}</span>
+                          <div className="product-title-row">
+                            <h3>{product.name}</h3>
+                            <span className="product-price">Desde {formatPrice(Math.min(...product.variants.map((variant) => variant.price)))}</span>
+                          </div>
+                          <p>{product.description}</p>
+                          <button type="button" className="product-link" onClick={() => openProduct(product, cardVariantIndex)}>
+                            Presentaciones <ChevronRight size={16} />
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               </section>
             );
