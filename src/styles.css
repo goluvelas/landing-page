@@ -418,7 +418,7 @@ input:focus-visible {
   align-items: center;
   gap: 24px;
   padding: 18px 0;
-  animation: marquee 32s linear infinite;
+  animation: marquee 62s linear infinite;
   font-family: var(--serif);
   font-size: 16px;
   color: var(--cocoa-dark);

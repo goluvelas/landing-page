@@ -552,6 +552,25 @@ const formatPrice = (value: number) =>
 
 const whatsappNumber = "573118192481";
 
+const marqueeItems = [
+  "Bodas",
+  "Bautizos",
+  "Primeras comuniones",
+  "Confirmaciones",
+  "Baby showers",
+  "Cumpleaños",
+  "Quince años",
+  "Grados",
+  "Aniversarios",
+  "Eventos empresariales",
+  "Recordatorios personalizados",
+  "Detalles hechos a mano",
+  "Aromas que dejan huella",
+  "Momentos que merecen luz",
+  "Pequeñas velas, grandes recuerdos",
+  "Un detalle para cada historia",
+];
+
 function whatsappLink(product?: Product, variantName?: string) {
   const message = product
     ? `Hola Golu, vi el catálogo web y me interesa cotizar ${product.name}${variantName ? ` en presentación ${variantName}` : ""}. ¿Me cuentan más?`
@@ -716,8 +735,10 @@ function App() {
 
         <div className="marquee" aria-hidden="true">
           <div className="marquee-track">
-            <span>Recordatorios</span><i>✦</i><span>Momentos especiales</span><i>✦</i><span>Detalles</span><i>✦</i><span>Aromas</span><i>✦</i><span>Hecho a mano</span><i>✦</i>
-            <span>Recordatorios</span><i>✦</i><span>Momentos especiales</span><i>✦</i><span>Detalles</span><i>✦</i><span>Aromas</span><i>✦</i><span>Hecho a mano</span><i>✦</i>
+            {[...marqueeItems, ...marqueeItems].flatMap((item, index) => [
+              <span key={`${item}-${index}`}>{item}</span>,
+              <i key={`separator-${index}`}>✦</i>,
+            ])}
           </div>
         </div>
 
