@@ -510,6 +510,38 @@ const products: Product[] = [
   },
 ];
 
+const variantAsset = (name: string) => asset(`variants/${name}`);
+
+// Each image follows the same order as the product's presentation list.
+const variantImageSets: Record<string, string[]> = {
+  elefante: ["p03-02.jpg", "p03-01.jpg", "p03-04.jpg", "p03-03.jpg"].map(variantAsset),
+  conejito: ["p04-02.jpg", "p04-01.jpg", "p04-04.jpg", "p04-03.jpg"].map(variantAsset),
+  "osito-peluche": ["p05-01.jpg", "p05-03.jpg", "p05-04.jpg", "p05-02.jpg"].map(variantAsset),
+  "oso-mini": ["p06-02.jpg", "p06-01.jpg"].map(variantAsset),
+  "oso-mono": ["p07-02.jpg", "p07-01.jpg"].map(variantAsset),
+  "winnie-pooh": ["p08-01.jpg", "p08-02.jpg", "p08-03.jpg"].map(variantAsset),
+  leoncito: ["p09-01.jpg", "p09-02.jpg", "p09-03.jpg"].map(variantAsset),
+  "leoncito-3d": ["p10-01.jpg", "p10-02.jpg", "p10-03.jpg"].map(variantAsset),
+  piecitos: ["p11-01.jpg", "p11-02.jpg", "p11-03.jpg"].map(variantAsset),
+  virgencita: ["p12-02.jpg", "p12-01.jpg", "p12-03.jpg"].map(variantAsset),
+  angelito: ["p13-02.jpg", "p13-01.jpg", "p13-03.jpg"].map(variantAsset),
+  crucecita: ["p14-01.jpg", "p14-02.jpg"].map(variantAsset),
+  perrito: ["p15-01.jpg", "p15-02.jpg", "p15-03.jpg"].map(variantAsset),
+  "mini-burbuja": ["p16-02.jpg", "p16-01.jpg", "p16-03.jpg"].map(variantAsset),
+  concha: [variantAsset("p18-01.jpg"), variantAsset("concha-acetato.png"), variantAsset("p18-02.jpg")],
+  "postre-mariposa": ["p19-01.jpg", "p19-02.jpg"].map(variantAsset),
+  "postre-marino": ["p20-01.jpg", "p20-02.jpg"].map(variantAsset),
+  "mini-postre": ["p21-01.jpg", "p21-02.jpg"].map(variantAsset),
+  maceta: ["p22-02.jpg", "p22-01.jpg"].map(variantAsset),
+  margarita: ["p24-01.jpg", "p24-02.jpg", "p24-03.jpg"].map(variantAsset),
+  cocho: ["p26-01.jpg", "p26-02.jpg"].map(variantAsset),
+  bomboneras: ["p27-01.jpg", "p27-02.jpg"].map(variantAsset),
+  "mini-waffle": [variantAsset("mini-waffle-cajita.png"), variantAsset("mini-waffle-tull.png")],
+};
+
+const getVariantImage = (product: Product, index: number) =>
+  variantImageSets[product.id]?.[index] ?? product.image;
+
 const formatPrice = (value: number) =>
   new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -519,9 +551,9 @@ const formatPrice = (value: number) =>
 
 const whatsappNumber = "573118192481";
 
-function whatsappLink(product?: Product) {
+function whatsappLink(product?: Product, variantName?: string) {
   const message = product
-    ? `Hola Golú, vi el catálogo web y me interesa cotizar ${product.name}. ¿Me cuentan más?`
+    ? `Hola Golú, vi el catálogo web y me interesa cotizar ${product.name}${variantName ? ` en presentación ${variantName}` : ""}. ¿Me cuentan más?`
     : "Hola Golú, vi el catálogo web y quiero cotizar unas velas personalizadas. ¿Me ayudan?";
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
@@ -529,7 +561,13 @@ function whatsappLink(product?: Product) {
 function App() {
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const openProduct = (product: Product) => {
+    setSelectedVariantIndex(0);
+    setSelectedProduct(product);
+  };
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
@@ -728,7 +766,7 @@ function App() {
                 <div className="product-grid">
                   {groupProducts.map((product) => (
                     <article className="product-card" key={product.id}>
-                      <button className="product-image" type="button" onClick={() => setSelectedProduct(product)} aria-label={`Ver detalles de ${product.name}`}>
+                      <button className="product-image" type="button" onClick={() => openProduct(product)} aria-label={`Ver detalles de ${product.name}`}>
                         <img src={product.image} alt={product.name} loading="lazy" />
                         {product.tag && <span className="product-tag">{product.tag}</span>}
                         <span className="product-view">Ver detalle <ArrowRight size={15} /></span>
@@ -740,7 +778,7 @@ function App() {
                           <span className="product-price">Desde {formatPrice(Math.min(...product.variants.map((variant) => variant.price)))}</span>
                         </div>
                         <p>{product.description}</p>
-                        <button type="button" className="product-link" onClick={() => setSelectedProduct(product)}>
+                        <button type="button" className="product-link" onClick={() => openProduct(product)}>
                           Presentaciones <ChevronRight size={16} />
                         </button>
                       </div>
@@ -850,28 +888,55 @@ function App() {
               <X size={20} />
             </button>
             <div className="modal-image">
-              <img src={selectedProduct.image} alt={selectedProduct.name} />
-              <span>{selectedProduct.category}</span>
+              <img
+                key={getVariantImage(selectedProduct, selectedVariantIndex)}
+                src={getVariantImage(selectedProduct, selectedVariantIndex)}
+                alt={`${selectedProduct.name} - ${selectedProduct.variants[selectedVariantIndex].name}`}
+              />
+              <div className="modal-image-labels">
+                <span>{selectedProduct.category}</span>
+                <strong>{selectedProduct.variants[selectedVariantIndex].name}</strong>
+              </div>
             </div>
             <div className="modal-content">
               <span className="eyebrow">Referencia Golú</span>
               <h2 id="modal-title">{selectedProduct.name}</h2>
               <p className="modal-description">{selectedProduct.description}</p>
               <div className="variant-list">
-                <span className="variant-label">Presentaciones</span>
-                {selectedProduct.variants.map((variant) => (
-                  <div className="variant-row" key={`${selectedProduct.id}-${variant.name}`}>
-                    <span>{variant.name}</span>
-                    <strong>{formatPrice(variant.price)}</strong>
-                  </div>
-                ))}
+                <div className="variant-heading">
+                  <span className="variant-label">Elige una presentación</span>
+                  <small>Selecciona una foto para verla en detalle</small>
+                </div>
+                <div className="variant-cards">
+                  {selectedProduct.variants.map((variant, index) => (
+                    <button
+                      className={selectedVariantIndex === index ? "variant-card active" : "variant-card"}
+                      type="button"
+                      key={`${selectedProduct.id}-${variant.name}`}
+                      onClick={() => setSelectedVariantIndex(index)}
+                      aria-pressed={selectedVariantIndex === index}
+                    >
+                      <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="lazy" />
+                      <span className="variant-card-copy">
+                        <span>{variant.name}</span>
+                        <strong>{formatPrice(variant.price)}</strong>
+                      </span>
+                      <span className="variant-check" aria-hidden="true"><Check size={13} /></span>
+                    </button>
+                  ))}
+                </div>
               </div>
               {selectedProduct.notes && (
                 <ul className="modal-notes">
                   {selectedProduct.notes.map((note) => <li key={note}><Check size={15} /> {note}</li>)}
                 </ul>
               )}
-              <a className="button button-primary modal-cta" href={whatsappLink(selectedProduct)} target="_blank" rel="noreferrer">
+              <a
+                className="button button-primary modal-cta"
+                href={whatsappLink(selectedProduct, selectedProduct.variants[selectedVariantIndex].name)}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Cotizar esta referencia <MessageCircle size={18} />
               </a>
               <small>El valor final puede variar según cantidad y personalización.</small>

@@ -1147,10 +1147,10 @@ footer {
 }
 
 .product-modal {
-  width: min(900px, 100%);
-  max-height: min(720px, calc(100vh - 48px));
+  width: min(980px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
   display: grid;
-  grid-template-columns: 0.88fr 1.12fr;
+  grid-template-columns: 0.92fr 1.08fr;
   overflow: hidden;
   position: relative;
   border-radius: 24px;
@@ -1189,21 +1189,43 @@ footer {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: variantImageIn 260ms ease;
 }
 
-.modal-image > span {
+.modal-image-labels {
+  max-width: calc(100% - 36px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
   position: absolute;
   left: 18px;
   bottom: 18px;
-  padding: 8px 12px;
-  border-radius: 999px;
+  padding: 10px 13px;
+  border-radius: 13px;
   background: rgba(255, 250, 246, 0.88);
   color: var(--cocoa-dark);
+  backdrop-filter: blur(8px);
+}
+
+.modal-image-labels span {
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  backdrop-filter: blur(8px);
+}
+
+.modal-image-labels strong {
+  overflow: hidden;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+}
+
+@keyframes variantImageIn {
+  from { opacity: 0.5; transform: scale(1.015); }
 }
 
 .modal-content {
@@ -1227,12 +1249,20 @@ footer {
 }
 
 .variant-list {
+  padding-top: 15px;
   border-top: 1px solid var(--line);
+}
+
+.variant-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
 }
 
 .variant-label {
   display: block;
-  padding: 16px 0 8px;
   color: var(--cocoa);
   font-size: 9px;
   font-weight: 600;
@@ -1240,22 +1270,97 @@ footer {
   text-transform: uppercase;
 }
 
-.variant-row {
+.variant-heading small {
+  margin: 0;
+  color: #9b8e89;
+  font-size: 9px;
+  text-align: right;
+}
+
+.variant-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.variant-card {
+  min-width: 0;
+  min-height: 91px;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  position: relative;
+  padding: 7px 24px 7px 7px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.42);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.variant-card:hover {
+  border-color: rgba(112, 69, 47, 0.42);
+  background: white;
+  transform: translateY(-1px);
+}
+
+.variant-card.active {
+  border-color: var(--cocoa);
+  background: white;
+  box-shadow: 0 8px 20px rgba(75, 48, 37, 0.08);
+}
+
+.variant-card > img {
+  width: 72px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--cream-dark);
+}
+
+.variant-card-copy {
+  min-width: 0;
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  flex-direction: column;
+  gap: 7px;
 }
 
-.variant-row span {
+.variant-card-copy > span {
   color: var(--ink-soft);
+  font-size: 10px;
+  line-height: 1.35;
 }
 
-.variant-row strong {
-  flex: 0 0 auto;
+.variant-card-copy strong {
   color: var(--cocoa-dark);
+  font-size: 11px;
+}
+
+.variant-check {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: transparent;
+}
+
+.variant-card.active .variant-check {
+  border-color: var(--cocoa);
+  background: var(--cocoa);
+  color: white;
+}
+
+.variant-card:only-child {
+  grid-column: 1 / -1;
 }
 
 .modal-notes {
@@ -1282,7 +1387,7 @@ footer {
   width: 100%;
 }
 
-.modal-content small {
+.modal-content > small {
   display: block;
   margin-top: 13px;
   color: #9b8e89;
@@ -1710,6 +1815,20 @@ footer {
 
   .modal-content h2 {
     font-size: 39px;
+  }
+
+  .variant-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .variant-heading small {
+    text-align: left;
+  }
+
+  .variant-cards {
+    grid-template-columns: 1fr;
   }
 
   .modal-close {
