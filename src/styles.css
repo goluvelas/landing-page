@@ -1237,10 +1237,10 @@ footer {
 }
 
 .product-modal {
-  width: min(980px, 100%);
+  width: min(1060px, 100%);
   max-height: min(760px, calc(100vh - 48px));
   display: grid;
-  grid-template-columns: 0.92fr 1.08fr;
+  grid-template-columns: 0.86fr 1.14fr;
   overflow: hidden;
   position: relative;
   border-radius: 24px;
@@ -1320,7 +1320,7 @@ footer {
 
 .modal-content {
   overflow-y: auto;
-  padding: 58px 55px 45px;
+  padding: 56px 46px 44px;
 }
 
 .modal-content h2 {
@@ -1354,7 +1354,7 @@ footer {
 .variant-label {
   display: block;
   color: var(--cocoa);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1363,25 +1363,26 @@ footer {
 .variant-heading small {
   margin: 0;
   color: #9b8e89;
-  font-size: 9px;
+  font-size: 10px;
+  line-height: 1.4;
   text-align: right;
 }
 
 .variant-cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
+  gap: 11px;
 }
 
 .variant-card {
   min-width: 0;
-  min-height: 91px;
+  min-height: 112px;
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
+  grid-template-columns: 82px minmax(0, 1fr);
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   position: relative;
-  padding: 7px 24px 7px 7px;
+  padding: 9px 30px 9px 9px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -1404,10 +1405,10 @@ footer {
 }
 
 .variant-card > img {
-  width: 72px;
-  height: 75px;
+  width: 82px;
+  height: 92px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 9px;
   background: var(--cream-dark);
 }
 
@@ -1415,28 +1416,30 @@ footer {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 9px;
 }
 
 .variant-card-copy > span {
-  color: var(--ink-soft);
-  font-size: 10px;
-  line-height: 1.35;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .variant-card-copy strong {
   color: var(--cocoa-dark);
-  font-size: 11px;
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 .variant-check {
-  width: 18px;
-  height: 18px;
+  width: 21px;
+  height: 21px;
   display: grid;
   place-items: center;
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   border: 1px solid var(--line);
   border-radius: 50%;
   background: var(--paper);
@@ -1521,6 +1524,12 @@ footer {
   .contact-section {
     padding: 65px;
     gap: 45px;
+  }
+}
+
+@media (max-width: 900px) {
+  .variant-cards {
+    grid-template-columns: 1fr;
   }
 }
 
