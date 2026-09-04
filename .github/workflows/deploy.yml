@@ -29,6 +29,11 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+        env:
+          VITE_FRESA_API_KEY: ${{ secrets.FRESA_API_KEY }}
+          VITE_FRESA_API_URL: https://fresaai.app/api/public/v1/tasks
+          VITE_FRESA_CATALOG_LIST_ID: d84c5513-68e9-4a6e-8e38-8813aaf517eb
+          VITE_FRESA_CONTENT_LIST_ID: f2543253-1054-454b-a73d-66f56c6bc818
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

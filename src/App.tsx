@@ -15,6 +15,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import { loadGoluCms, type GoluCmsData } from "./goluCms";
 
 type Category = "Recordatorios" | "Postres" | "Detalles";
 
@@ -24,7 +25,7 @@ type Product = {
   category: Category;
   image: string;
   description: string;
-  variants: { name: string; price: number }[];
+  variants: { name: string; price: number; images?: string[] }[];
   notes?: string[];
   tag?: string;
 };
@@ -540,8 +541,19 @@ const variantImageSets: Record<string, string[]> = {
   "mini-waffle": [variantAsset("mini-waffle-cajita.png"), variantAsset("mini-waffle-tull.png")],
 };
 
-const getVariantImage = (product: Product, index: number) =>
-  variantImageSets[product.id]?.[index] ?? product.image;
+const getVariantImages = (product: Product, index: number) => {
+  const managedImages = product.variants[index]?.images?.filter(Boolean) ?? [];
+  if (managedImages.length) return managedImages;
+  return [variantImageSets[product.id]?.[index] ?? product.image];
+};
+
+const getVariantImage = (product: Product, index: number, imageIndex = 0) =>
+  getVariantImages(product, index)[imageIndex] ?? getVariantImages(product, index)[0] ?? product.image;
+
+const getVariantGalleryCount = (product: Product) =>
+  product.variants.some((variant) => variant.images?.length)
+    ? product.variants.length
+    : variantImageSets[product.id]?.length ?? 0;
 
 const formatPrice = (value: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -550,7 +562,7 @@ const formatPrice = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-const whatsappNumber = "573118192481";
+const fallbackWhatsappNumber = "573118192481";
 
 const marqueeItems = [
   "Bodas",
@@ -571,27 +583,53 @@ const marqueeItems = [
   "Un detalle para cada historia",
 ];
 
-function whatsappLink(product?: Product, variantName?: string) {
+function whatsappLink(number: string, defaultMessage: string, product?: Product, variantName?: string) {
   const message = product
     ? `Hola Golu, vi el catálogo web y me interesa cotizar ${product.name}${variantName ? ` en presentación ${variantName}` : ""}. ¿Me cuentan más?`
-    : "Hola Golu, vi el catálogo web y quiero cotizar unas velas personalizadas. ¿Me ayudan?";
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    : defaultMessage;
+  return `https://wa.me/${number.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
+}
+
+function highlightedTitle(text: string, highlight: string) {
+  if (!highlight) return text;
+  const start = text.toLocaleLowerCase("es").indexOf(highlight.toLocaleLowerCase("es"));
+  if (start < 0) return text;
+  return (
+    <>
+      {text.slice(0, start)}
+      <em>{text.slice(start, start + highlight.length)}</em>
+      {text.slice(start + highlight.length)}
+    </>
+  );
 }
 
 function App() {
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [cardVariantIndexes, setCardVariantIndexes] = useState<Record<string, number>>({});
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cms, setCms] = useState<GoluCmsData | null>(null);
+
+  const siteProducts: Product[] = cms?.products.length ? cms.products : products;
+  const content = (key: string) => cms?.content[key];
+  const managedImage = (key: string, fallback: string) => cms?.images[key]?.[0]?.url || fallback;
+  const managedImageAlt = (key: string, fallback: string) => cms?.images[key]?.[0]?.alt || fallback;
+  const whatsappNumber = content("contact.whatsapp")?.body || fallbackWhatsappNumber;
+  const defaultWhatsappMessage = content("contact.whatsapp_message")?.body
+    || "Hola Golu, vi el catálogo web y quiero cotizar unas velas personalizadas. ¿Me ayudan?";
+  const getWhatsappLink = (product?: Product, variantName?: string) =>
+    whatsappLink(whatsappNumber, defaultWhatsappMessage, product, variantName);
 
   const openProduct = (product: Product, variantIndex = 0) => {
     setSelectedVariantIndex(variantIndex);
+    setSelectedImageIndex(0);
     setSelectedProduct(product);
   };
 
   const moveCardVariant = (product: Product, direction: -1 | 1) => {
-    const imageCount = variantImageSets[product.id]?.length ?? 1;
+    const imageCount = getVariantGalleryCount(product);
     if (imageCount < 2) return;
 
     setCardVariantIndexes((currentIndexes) => {
@@ -605,7 +643,7 @@ function App() {
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
-    return products.filter((product) => {
+    return siteProducts.filter((product) => {
       const matchesQuery =
         !normalizedQuery ||
         `${product.name} ${product.description} ${product.category}`
@@ -613,7 +651,21 @@ function App() {
           .includes(normalizedQuery);
       return matchesQuery;
     });
-  }, [query]);
+  }, [query, siteProducts]);
+
+  useEffect(() => {
+    let active = true;
+    loadGoluCms()
+      .then((data) => {
+        if (active && data) setCms(data);
+      })
+      .catch((error) => {
+        console.warn("No se pudo cargar el CMS de Fresa; se conserva el catálogo local.", error);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!selectedProduct) return;
@@ -635,27 +687,53 @@ function App() {
   }> = [
     {
       category: "Recordatorios",
-      eyebrow: "Toda ocasión",
-      description: "Referencias personalizables para bautizos, cumpleaños, primeras comuniones y momentos para recordar.",
+      eyebrow: content("catalog.group.recordatorios")?.eyebrow || "Toda ocasión",
+      description: content("catalog.group.recordatorios")?.body || "Referencias personalizables para bautizos, cumpleaños, primeras comuniones y momentos para recordar.",
     },
     {
       category: "Postres",
-      eyebrow: "Dulces a la vista",
-      description: "Velas con apariencia de postre, capas, toppings y aromas que despiertan los sentidos.",
+      eyebrow: content("catalog.group.postres")?.eyebrow || "Dulces a la vista",
+      description: content("catalog.group.postres")?.body || "Velas con apariencia de postre, capas, toppings y aromas que despiertan los sentidos.",
     },
     {
       category: "Detalles",
-      eyebrow: "Regalos especiales",
-      description: "Ramos, estuches y composiciones artesanales creadas para sorprender en cualquier ocasión.",
+      eyebrow: content("catalog.group.detalles")?.eyebrow || "Regalos especiales",
+      description: content("catalog.group.detalles")?.body || "Ramos, estuches y composiciones artesanales creadas para sorprender en cualquier ocasión.",
     },
   ];
+
+  const announcement = content("global.announcement");
+  const hero = content("home.hero");
+  const heroSecondaryCta = content("home.hero.secondary_cta");
+  const heroProof = hero?.items.length ? hero.items : ["Hechas a mano", "A tu medida", "Con aroma"];
+  const managedMarqueeItems = content("home.marquee")?.items;
+  const visibleMarqueeItems = managedMarqueeItems?.length ? managedMarqueeItems : marqueeItems;
+  const catalogIntro = content("catalog.intro");
+  const customize = content("customize.intro");
+  const customizeSteps = customize?.items.length
+    ? customize.items.map((item) => {
+        const [title, ...description] = item.split("|");
+        return { title, description: description.join("|") };
+      })
+    : [
+        { title: "Elige tu referencia", description: "Encuentra la forma y presentación que más te guste." },
+        { title: "Cuéntanos tu idea", description: "Compártenos fecha, cantidad, colores y estilo de tu evento." },
+        { title: "Personalizamos", description: "Definimos aroma, nombre, mensaje, moño y empaque." },
+        { title: "Enciende el momento", description: "Recibe un detalle artesanal listo para sorprender." },
+      ];
+  const story = content("story.main");
+  const contact = content("contact.main");
+  const contactWhatsapp = content("contact.whatsapp");
+  const contactEmail = content("contact.email");
+  const contactInstagram = content("contact.instagram");
+  const footer = content("footer.main");
 
   return (
     <div className="site-shell">
       <div className="announcement">
-        <span>Velas hechas a mano</span>
+        <span>{announcement?.title || "Velas hechas a mano"}</span>
         <span className="announcement-dot" aria-hidden="true" />
-        <span>Personaliza color, aroma y mensaje</span>
+        <span>{announcement?.body || "Personaliza color, aroma y mensaje"}</span>
       </div>
 
       <header className="site-header">
@@ -670,7 +748,7 @@ function App() {
           <a href="#nosotros">Nuestra esencia</a>
         </nav>
 
-        <a className="header-cta" href={whatsappLink()} target="_blank" rel="noreferrer">
+        <a className="header-cta" href={getWhatsappLink()} target="_blank" rel="noreferrer">
           Cotizar
           <ArrowRight size={16} strokeWidth={1.8} />
         </a>
@@ -691,43 +769,50 @@ function App() {
           <a href="#catalogo" onClick={() => setMenuOpen(false)}>Catálogo</a>
           <a href="#personaliza" onClick={() => setMenuOpen(false)}>Personaliza</a>
           <a href="#nosotros" onClick={() => setMenuOpen(false)}>Nuestra esencia</a>
-          <a href={whatsappLink()} target="_blank" rel="noreferrer">Cotizar por WhatsApp</a>
+          <a href={getWhatsappLink()} target="_blank" rel="noreferrer">Cotizar por WhatsApp</a>
         </nav>
       )}
 
       <main>
         <section className="hero" id="inicio">
           <div className="hero-copy">
-            <span className="eyebrow"><Sparkles size={15} /> Catálogo 2026</span>
-            <h1>Detalles que se <em>encienden</em> y se recuerdan.</h1>
+            <span className="eyebrow"><Sparkles size={15} /> {hero?.eyebrow || "Catálogo 2026"}</span>
+            <h1>{highlightedTitle(hero?.title || "Detalles que se encienden y se recuerdan.", hero?.highlight || "encienden")}</h1>
             <p className="hero-lead">
-              Velas artesanales para celebrar tus momentos más bonitos. Elige la forma, el color, el aroma y cada pequeño detalle.
+              {hero?.body || "Velas artesanales para celebrar tus momentos más bonitos. Elige la forma, el color, el aroma y cada pequeño detalle."}
             </p>
             <div className="hero-actions">
-              <a className="button button-primary" href="#catalogo">
-                Ver colección <ArrowRight size={18} />
+              <a className="button button-primary" href={hero?.ctaUrl || "#catalogo"}>
+                {hero?.ctaLabel || "Ver colección"} <ArrowRight size={18} />
               </a>
-              <a className="button button-ghost" href={whatsappLink()} target="_blank" rel="noreferrer">
-                <MessageCircle size={18} /> Hablemos de tu evento
+              <a className="button button-ghost" href={heroSecondaryCta?.ctaUrl || getWhatsappLink()} target="_blank" rel="noreferrer">
+                <MessageCircle size={18} /> {heroSecondaryCta?.ctaLabel || "Hablemos de tu evento"}
               </a>
             </div>
             <div className="hero-proof" aria-label="Características principales">
-              <span><Check size={15} /> Hechas a mano</span>
-              <span><Check size={15} /> A tu medida</span>
-              <span><Check size={15} /> Con aroma</span>
+              {heroProof.map((item) => <span key={item}><Check size={15} /> {item}</span>)}
             </div>
           </div>
 
           <div className="hero-gallery" aria-label="Selección de productos Golu">
             <figure className="hero-image hero-image-main">
-              <img src={asset("hero-collage.jpg")} alt="Colección de velas florales Golu en estuches" />
+              <img
+                src={managedImage("home.hero.image.1", asset("hero-collage.jpg"))}
+                alt={managedImageAlt("home.hero.image.1", "Colección de velas florales Golu en estuches")}
+              />
               <figcaption>Hecho con intención</figcaption>
             </figure>
             <figure className="hero-image hero-image-small hero-image-top">
-              <img src={asset("hero-bouquet.jpg")} alt="Ramo artesanal de flores de cera" />
+              <img
+                src={managedImage("home.hero.image.2", asset("hero-bouquet.jpg"))}
+                alt={managedImageAlt("home.hero.image.2", "Ramo artesanal de flores de cera")}
+              />
             </figure>
             <figure className="hero-image hero-image-small hero-image-bottom">
-              <img src={asset("hero-flowers.jpg")} alt="Velas artesanales en tonos rosados" />
+              <img
+                src={managedImage("home.hero.image.3", asset("hero-flowers.jpg"))}
+                alt={managedImageAlt("home.hero.image.3", "Velas artesanales en tonos rosados")}
+              />
             </figure>
             <span className="hero-stamp" aria-hidden="true">GOLU<br />con amor</span>
           </div>
@@ -735,7 +820,7 @@ function App() {
 
         <div className="marquee" aria-hidden="true">
           <div className="marquee-track">
-            {[...marqueeItems, ...marqueeItems].flatMap((item, index) => [
+            {[...visibleMarqueeItems, ...visibleMarqueeItems].flatMap((item, index) => [
               <span key={`${item}-${index}`}>{item}</span>,
               <i key={`separator-${index}`}>✦</i>,
             ])}
@@ -745,10 +830,10 @@ function App() {
         <section className="catalog-section" id="catalogo">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">Toda ocasión</span>
-              <h2>Encuentra tu próximo <em>detalle.</em></h2>
+              <span className="eyebrow">{catalogIntro?.eyebrow || "Toda ocasión"}</span>
+              <h2>{highlightedTitle(catalogIntro?.title || "Encuentra tu próximo detalle.", catalogIntro?.highlight || "detalle")}</h2>
             </div>
-            <p>Explora las referencias del catálogo y abre cada ficha para ver sus presentaciones y precios.</p>
+            <p>{catalogIntro?.body || "Explora las referencias del catálogo y abre cada ficha para ver sus presentaciones y precios."}</p>
           </div>
 
           <div className="catalog-toolbar">
@@ -756,7 +841,7 @@ function App() {
               {catalogGroups.map((group) => (
                 <a className="filter-chip" href={`#${group.category.toLowerCase()}`} key={group.category}>
                   {group.category}
-                  <span>{products.filter((product) => product.category === group.category).length}</span>
+                  <span>{siteProducts.filter((product) => product.category === group.category).length}</span>
                 </a>
               ))}
             </nav>
@@ -801,7 +886,7 @@ function App() {
 
                 <div className="product-grid">
                   {groupProducts.map((product) => {
-                    const galleryCount = variantImageSets[product.id]?.length ?? 0;
+                    const galleryCount = getVariantGalleryCount(product);
                     const hasVariantGallery = galleryCount > 1;
                     const cardVariantIndex = hasVariantGallery ? (cardVariantIndexes[product.id] ?? 0) : 0;
                     const cardVariant = product.variants[cardVariantIndex] ?? product.variants[0];
@@ -881,7 +966,11 @@ function App() {
 
         <section className="custom-section" id="personaliza">
           <div className="custom-visual">
-            <img src={asset("hero-flowers.jpg")} alt="Flores y velas artesanales Golu" loading="lazy" />
+            <img
+              src={managedImage("customize.image", asset("hero-flowers.jpg"))}
+              alt={managedImageAlt("customize.image", "Flores y velas artesanales Golu")}
+              loading="lazy"
+            />
             <div className="custom-card">
               <Heart size={22} fill="currentColor" />
               <span>Cada pedido</span>
@@ -889,19 +978,21 @@ function App() {
             </div>
           </div>
           <div className="custom-copy">
-            <span className="eyebrow">Tu idea, nuestra magia</span>
-            <h2>Hazlo tan único como la <em>ocasión.</em></h2>
+            <span className="eyebrow">{customize?.eyebrow || "Tu idea, nuestra magia"}</span>
+            <h2>{highlightedTitle(customize?.title || "Hazlo tan único como la ocasión.", customize?.highlight || "ocasión")}</h2>
             <p>
-              No hacemos regalos en serie. Creamos cada vela para conversar con tu celebración: su paleta, su aroma, su mensaje y la forma de entregarla.
+              {customize?.body || "No hacemos regalos en serie. Creamos cada vela para conversar con tu celebración: su paleta, su aroma, su mensaje y la forma de entregarla."}
             </p>
             <ol className="steps-list">
-              <li><span>01</span><div><strong>Elige tu referencia</strong><p>Encuentra la forma y presentación que más te guste.</p></div></li>
-              <li><span>02</span><div><strong>Cuéntanos tu idea</strong><p>Compártenos fecha, cantidad, colores y estilo de tu evento.</p></div></li>
-              <li><span>03</span><div><strong>Personalizamos</strong><p>Definimos aroma, nombre, mensaje, moño y empaque.</p></div></li>
-              <li><span>04</span><div><strong>Enciende el momento</strong><p>Recibe un detalle artesanal listo para sorprender.</p></div></li>
+              {customizeSteps.map((step, index) => (
+                <li key={`${step.title}-${index}`}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <div><strong>{step.title}</strong><p>{step.description}</p></div>
+                </li>
+              ))}
             </ol>
-            <a className="button button-primary" href={whatsappLink()} target="_blank" rel="noreferrer">
-              Empezar mi pedido <MessageCircle size={18} />
+            <a className="button button-primary" href={customize?.ctaUrl || getWhatsappLink()} target="_blank" rel="noreferrer">
+              {customize?.ctaLabel || "Empezar mi pedido"} <MessageCircle size={18} />
             </a>
           </div>
         </section>
@@ -909,24 +1000,24 @@ function App() {
         <section className="brand-story" id="nosotros">
           <div className="story-mark" aria-hidden="true">G</div>
           <div className="story-copy">
-            <span className="eyebrow">Nuestra esencia</span>
-            <blockquote>“No es solo una vela. Es la forma más bonita de decir: pensé en ti.”</blockquote>
+            <span className="eyebrow">{story?.eyebrow || "Nuestra esencia"}</span>
+            <blockquote>“{story?.title || "No es solo una vela. Es la forma más bonita de decir: pensé en ti."}”</blockquote>
           </div>
           <div className="story-note">
             <PackageCheck size={25} />
-            <p>Diseñamos, vertemos, decoramos y empacamos cada pieza con manos cuidadosas y mucha intención.</p>
+            <p>{story?.body || "Diseñamos, vertemos, decoramos y empacamos cada pieza con manos cuidadosas y mucha intención."}</p>
           </div>
         </section>
 
         <section className="contact-section">
           <div className="contact-copy">
-            <span className="eyebrow">Hagamos algo bonito</span>
-            <h2>¿Ya imaginaste tu <em>detalle?</em></h2>
-            <p>Escríbenos con la referencia que te gustó y los datos de tu evento. Te ayudamos a aterrizar la idea.</p>
+            <span className="eyebrow">{contact?.eyebrow || "Hagamos algo bonito"}</span>
+            <h2>{highlightedTitle(contact?.title || "¿Ya imaginaste tu detalle?", contact?.highlight || "detalle")}</h2>
+            <p>{contact?.body || "Escríbenos con la referencia que te gustó y los datos de tu evento. Te ayudamos a aterrizar la idea."}</p>
           </div>
-          <a className="contact-action" href={whatsappLink()} target="_blank" rel="noreferrer">
-            <span><MessageCircle size={24} /> WhatsApp</span>
-            <strong>(57) 311 819 2481</strong>
+          <a className="contact-action" href={contactWhatsapp?.ctaUrl || getWhatsappLink()} target="_blank" rel="noreferrer">
+            <span><MessageCircle size={24} /> {contact?.ctaLabel || "WhatsApp"}</span>
+            <strong>{contactWhatsapp?.title || "(57) 311 819 2481"}</strong>
             <ArrowRight size={22} />
           </a>
         </section>
@@ -935,22 +1026,22 @@ function App() {
       <footer>
         <div className="footer-brand">
           <span className="brand-name">GOLU</span>
-          <p>Velas artesanales para toda ocasión.</p>
+          <p>{footer?.body || "Velas artesanales para toda ocasión."}</p>
         </div>
         <div className="footer-links">
-          <a href="mailto:goluvelas@gmail.com"><Mail size={16} /> goluvelas@gmail.com</a>
-          <a href="tel:+573118192481"><Phone size={16} /> +57 311 819 2481</a>
+          <a href={contactEmail?.ctaUrl || "mailto:goluvelas@gmail.com"}><Mail size={16} /> {contactEmail?.body || "goluvelas@gmail.com"}</a>
+          <a href={`tel:+${whatsappNumber.replace(/\D/g, "")}`}><Phone size={16} /> {contactWhatsapp?.title || "+57 311 819 2481"}</a>
         </div>
         <div className="footer-social">
-          <a href="https://www.instagram.com/golu_velas" target="_blank" rel="noreferrer" aria-label="Instagram de Golu"><AtSign size={18} /></a>
+          <a href={contactInstagram?.ctaUrl || "https://www.instagram.com/golu_velas"} target="_blank" rel="noreferrer" aria-label="Instagram de Golu"><AtSign size={18} /></a>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Golu Velas</span>
-          <span>Precios en pesos colombianos. Sujeto a disponibilidad.</span>
+          <span>{footer?.items[0] || "© 2026 Golu Velas"}</span>
+          <span>{footer?.items[1] || "Precios en pesos colombianos. Sujeto a disponibilidad."}</span>
         </div>
       </footer>
 
-      <a className="floating-whatsapp" href={whatsappLink()} target="_blank" rel="noreferrer" aria-label="Cotizar por WhatsApp">
+      <a className="floating-whatsapp" href={getWhatsappLink()} target="_blank" rel="noreferrer" aria-label="Cotizar por WhatsApp">
         <MessageCircle size={23} />
         <span>Cotiza aquí</span>
       </a>
@@ -969,14 +1060,30 @@ function App() {
             </button>
             <div className="modal-image">
               <img
-                key={getVariantImage(selectedProduct, selectedVariantIndex)}
-                src={getVariantImage(selectedProduct, selectedVariantIndex)}
+                key={getVariantImage(selectedProduct, selectedVariantIndex, selectedImageIndex)}
+                src={getVariantImage(selectedProduct, selectedVariantIndex, selectedImageIndex)}
                 alt={`${selectedProduct.name} - ${selectedProduct.variants[selectedVariantIndex].name}`}
               />
               <div className="modal-image-labels">
                 <span>{selectedProduct.category}</span>
                 <strong>{selectedProduct.variants[selectedVariantIndex].name}</strong>
               </div>
+              {getVariantImages(selectedProduct, selectedVariantIndex).length > 1 && (
+                <div className="modal-image-thumbnails" aria-label="Más imágenes de esta presentación">
+                  {getVariantImages(selectedProduct, selectedVariantIndex).map((image, index) => (
+                    <button
+                      className={selectedImageIndex === index ? "active" : ""}
+                      type="button"
+                      key={`${image}-${index}`}
+                      onClick={() => setSelectedImageIndex(index)}
+                      aria-label={`Ver imagen ${index + 1}`}
+                      aria-pressed={selectedImageIndex === index}
+                    >
+                      <img src={image} alt="" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="modal-content">
               <span className="eyebrow">Referencia Golu</span>
@@ -993,7 +1100,10 @@ function App() {
                       className={selectedVariantIndex === index ? "variant-card active" : "variant-card"}
                       type="button"
                       key={`${selectedProduct.id}-${variant.name}`}
-                      onClick={() => setSelectedVariantIndex(index)}
+                      onClick={() => {
+                        setSelectedVariantIndex(index);
+                        setSelectedImageIndex(0);
+                      }}
                       aria-pressed={selectedVariantIndex === index}
                     >
                       <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="lazy" />
@@ -1013,7 +1123,7 @@ function App() {
               )}
               <a
                 className="button button-primary modal-cta"
-                href={whatsappLink(selectedProduct, selectedProduct.variants[selectedVariantIndex].name)}
+                href={getWhatsappLink(selectedProduct, selectedProduct.variants[selectedVariantIndex].name)}
                 target="_blank"
                 rel="noreferrer"
               >
