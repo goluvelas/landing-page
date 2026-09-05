@@ -57,6 +57,11 @@ const DEFAULT_CATALOG_LIST_ID = "d84c5513-68e9-4a6e-8e38-8813aaf517eb";
 const DEFAULT_CONTENT_LIST_ID = "f2543253-1054-454b-a73d-66f56c6bc818";
 const CMS_PAGE_SIZE = 50;
 const CMS_MAX_PAGES = 20;
+const FRESA_IMAGE_WIDTH = 900;
+const FRESA_IMAGE_QUALITY = 72;
+const IMAGE_TOKEN_REFRESH_MARGIN_MS = 60_000;
+const optimizedImageCache = new Map<string, { url: string; expiresAt: number | null }>();
+let imageCacheRevision = 0;
 
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
@@ -85,11 +90,84 @@ function values(task: ApiTask): Record<string, unknown> {
   }, {});
 }
 
+function optimizedImageUrl(url: string): string {
+  const identity = imageIdentity(url);
+  const cached = optimizedImageCache.get(identity);
+  if (cached && (!cached.expiresAt || cached.expiresAt - Date.now() > IMAGE_TOKEN_REFRESH_MARGIN_MS)) {
+    return cached.url;
+  }
+
+  let optimizedUrl = url;
+  try {
+    const imageUrl = new URL(url);
+    if (imageUrl.pathname.includes("/storage/v1/object/sign/")) {
+      imageUrl.pathname = imageUrl.pathname.replace(
+        "/storage/v1/object/sign/",
+        "/storage/v1/render/image/sign/",
+      );
+      imageUrl.searchParams.set("width", String(FRESA_IMAGE_WIDTH));
+      imageUrl.searchParams.set("quality", String(FRESA_IMAGE_QUALITY));
+      optimizedUrl = imageUrl.toString();
+    }
+  } catch {
+    optimizedUrl = url;
+  }
+
+  optimizedImageCache.set(identity, {
+    url: optimizedUrl,
+    expiresAt: signedUrlExpiresAt(url),
+  });
+  imageCacheRevision += 1;
+  return optimizedUrl;
+}
+
+function imageIdentity(url: string): string {
+  try {
+    const imageUrl = new URL(url);
+    if (
+      !imageUrl.pathname.includes("/storage/v1/object/sign/")
+      && !imageUrl.pathname.includes("/storage/v1/render/image/sign/")
+    ) return url;
+    imageUrl.search = "";
+    imageUrl.hash = "";
+    return imageUrl.toString();
+  } catch {
+    return url;
+  }
+}
+
+function signedUrlExpiresAt(url: string): number | null {
+  try {
+    const token = new URL(url).searchParams.get("token");
+    const payload = token?.split(".")[1];
+    if (!payload) return null;
+    const normalizedPayload = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decodedPayload = atob(normalizedPayload.padEnd(Math.ceil(normalizedPayload.length / 4) * 4, "="));
+    const expiresAt = JSON.parse(decodedPayload).exp;
+    return typeof expiresAt === "number" ? expiresAt * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeForVersion(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(normalizeForVersion);
+  if (!value || typeof value !== "object") return value;
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, item]) => [
+      key,
+      key === "url" && typeof item === "string" ? imageIdentity(item) : normalizeForVersion(item),
+    ]),
+  );
+}
+
 function imageUrls(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((item) => (item && typeof item === "object" ? text((item as { url?: unknown }).url) : ""))
-    .filter(Boolean);
+    .filter(Boolean)
+    .map(optimizedImageUrl);
 }
 
 function category(value: unknown): GoluCategory | null {
@@ -257,7 +335,10 @@ export async function loadGoluCms(): Promise<GoluCmsData | null> {
   const products = parseProducts(catalogTasks);
   const images = parseImages(catalogTasks);
   const content = parseContent(contentTasks);
-  const version = hash(JSON.stringify({ products, images, content }));
+  const version = hash(JSON.stringify({
+    data: normalizeForVersion({ catalogTasks, contentTasks }),
+    imageCacheRevision,
+  }));
 
   return {
     products,
