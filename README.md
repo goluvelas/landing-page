@@ -25,7 +25,7 @@ El proyecto usa rutas relativas, por lo que funciona tanto en un dominio raíz c
 
 ## Contenido administrado desde Fresa
 
-La landing consulta dos listas de Fresa al cargar: **Catálogo e imágenes** y **Contenido Landing**. Si la API no está disponible, conserva el catálogo local actual como fallback y nunca deja la página vacía.
+La landing consulta dos listas de Fresa: **Catálogo e imágenes** y **Contenido Landing**. Fresa es la fuente única del catálogo y de sus imágenes: la página sincroniza los cambios automáticamente cada 15 segundos y vuelve a consultar al recuperar el foco o la visibilidad. Si hay un fallo temporal, conserva únicamente el último estado recibido desde Fresa; no usa un catálogo ni imágenes locales como fallback.
 
 Para desarrollo local, copia `.env.example` como `.env.local` y configura `VITE_FRESA_API_KEY` con la credencial de solo lectura `Landing GOLU (solo lectura)`.
 

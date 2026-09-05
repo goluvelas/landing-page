@@ -30,530 +30,19 @@ type Product = {
   tag?: string;
 };
 
-const asset = (name: string) => `./assets/catalog/${name}`;
-
-const products: Product[] = [
-  {
-    id: "elefante",
-    name: "Elefante",
-    category: "Recordatorios",
-    image: asset("elefante.jpg"),
-    description: "Un recuerdo tierno y totalmente personalizable para celebrar nuevas historias.",
-    tag: "Favorito",
-    variants: [
-      { name: "Empaque acetato + base tipo postre", price: 8500 },
-      { name: "Hablador personalizado + base", price: 8300 },
-      { name: "Empaque acetato", price: 7200 },
-      { name: "Empaque tull", price: 5200 },
-    ],
-    notes: ["Color a elección", "Nombre o mensaje personalizado", "Incluye moño y aroma"],
-  },
-  {
-    id: "conejito",
-    name: "Conejito",
-    category: "Recordatorios",
-    image: asset("conejito.jpg"),
-    description: "Suave, delicado y listo para acompañar bautizos, baby showers y cumpleaños.",
-    variants: [
-      { name: "Empaque acetato + base tipo postre", price: 8300 },
-      { name: "Empaque acetato", price: 7200 },
-      { name: "Hablador personalizado", price: 6700 },
-      { name: "Empaque tull", price: 5200 },
-    ],
-    notes: ["Color a elección", "Personalización por ambas caras", "Incluye moño y aroma"],
-  },
-  {
-    id: "osito-peluche",
-    name: "Osito de peluche",
-    category: "Recordatorios",
-    image: asset("osito-peluche.jpg"),
-    description: "Un osito de cera con acabado dulce y empaque pensado para regalar.",
-    variants: [
-      { name: "Empaque acetato + base", price: 8300 },
-      { name: "Empaque acetato", price: 7200 },
-      { name: "Hablador personalizado", price: 6700 },
-      { name: "Empaque tull", price: 5300 },
-    ],
-    notes: ["Color del osito a elección", "Tarjeta o base personalizada", "Incluye aroma"],
-  },
-  {
-    id: "oso-mini",
-    name: "Oso Mini",
-    category: "Recordatorios",
-    image: asset("oso-mini.jpg"),
-    description: "Formato compacto con frasco de policarbonato y nombre en vinilo.",
-    variants: [
-      { name: "Acetato + base tipo postre", price: 8300 },
-      { name: "Empaque tull", price: 7900 },
-    ],
-    notes: ["Mensaje en tarjeta", "Nombre en vinilo", "Incluye moño y aroma"],
-  },
-  {
-    id: "oso-mono",
-    name: "Oso Moño",
-    category: "Recordatorios",
-    image: asset("oso-mono.jpg"),
-    description: "Pequeño, expresivo y vestido con un moño del color que elijas.",
-    variants: [
-      { name: "Cajita hablador", price: 8000 },
-      { name: "Empaque tull", price: 7000 },
-    ],
-    notes: ["Color y moño a elección", "Tarjeta opcional desde 6 unidades", "Incluye aroma"],
-  },
-  {
-    id: "winnie-pooh",
-    name: "Winnie Pooh",
-    category: "Recordatorios",
-    image: asset("winnie-pooh.jpg"),
-    description: "Una referencia alegre para celebraciones infantiles llenas de color.",
-    variants: [
-      { name: "Empaque acetato", price: 7200 },
-      { name: "Hablador personalizado", price: 6700 },
-      { name: "Empaque tull", price: 5500 },
-    ],
-    notes: ["Color a elección", "Base, caja o tarjeta personalizada", "Incluye moño y aroma"],
-  },
-  {
-    id: "leoncito",
-    name: "Leoncito",
-    category: "Recordatorios",
-    image: asset("leoncito.jpg"),
-    description: "Un detalle con mucha personalidad para pequeños protagonistas.",
-    variants: [
-      { name: "Empaque acetato + base", price: 8300 },
-      { name: "Hablador personalizado", price: 6700 },
-      { name: "Empaque tull", price: 5200 },
-    ],
-    notes: ["Hablador y tull desde 12 unidades", "Color y nombre personalizados", "Incluye aroma"],
-  },
-  {
-    id: "leoncito-3d",
-    name: "Leoncito 3D",
-    category: "Recordatorios",
-    image: asset("leoncito-3d.jpg"),
-    description: "Volumen y textura para un recuerdo que llama la atención desde cualquier ángulo.",
-    tag: "Nuevo",
-    variants: [
-      { name: "Empaque acetato + base", price: 8300 },
-      { name: "Hablador personalizado", price: 6700 },
-      { name: "Empaque tull", price: 5300 },
-    ],
-    notes: ["Hablador y tull desde 12 unidades", "Color a elección", "Incluye moño y aroma"],
-  },
-  {
-    id: "piecitos",
-    name: "Piecitos",
-    category: "Recordatorios",
-    image: asset("piecitos.jpg"),
-    description: "Una vela entrañable para anunciar, recibir y celebrar una nueva vida.",
-    variants: [
-      { name: "Empaque acetato + base", price: 8000 },
-      { name: "Hablador personalizado", price: 7000 },
-      { name: "Empaque tull", price: 6600 },
-    ],
-    notes: ["Color y base personalizados", "Mensaje en reverso o tarjeta", "Incluye moño y aroma"],
-  },
-  {
-    id: "virgencita",
-    name: "Virgencita",
-    category: "Recordatorios",
-    image: asset("virgencita.jpg"),
-    description: "Una referencia serena para primeras comuniones, bautizos y celebraciones de fe.",
-    variants: [
-      { name: "Acetato + base postre", price: 8500 },
-      { name: "Cajita con ventana", price: 7000 },
-      { name: "Empaque tull", price: 5500 },
-    ],
-    notes: ["Color a elección", "Nombre o mensaje personalizado", "Incluye moño y aroma"],
-  },
-  {
-    id: "angelito",
-    name: "Angelito",
-    category: "Recordatorios",
-    image: asset("angelito.jpg"),
-    description: "Una pieza luminosa y simbólica, hecha para momentos muy especiales.",
-    variants: [
-      { name: "Acetato + base postre", price: 8300 },
-      { name: "Cajita con ventana", price: 7000 },
-      { name: "Empaque tull", price: 5200 },
-    ],
-    notes: ["Color a elección", "Nombre o mensaje personalizado", "Incluye moño y aroma"],
-  },
-  {
-    id: "crucecita",
-    name: "Crucecita",
-    category: "Recordatorios",
-    image: asset("crucecita.jpg"),
-    description: "Minimalista y significativa, con presentación lista para entregar.",
-    variants: [
-      { name: "Cajita personalizada", price: 5900 },
-      { name: "Empaque tull", price: 4500 },
-    ],
-    notes: ["Disponible desde 12 unidades", "Color y mensaje a elección", "Incluye moño y aroma"],
-  },
-  {
-    id: "perrito",
-    name: "Perrito",
-    category: "Recordatorios",
-    image: asset("perrito.jpg"),
-    description: "Un compañero adorable en versión vela, ideal para celebraciones infantiles.",
-    variants: [
-      { name: "Hablador personalizado + base", price: 8300 },
-      { name: "Empaque acetato", price: 7000 },
-      { name: "Empaque tull", price: 5200 },
-    ],
-    notes: ["Color y nombre personalizados", "Incluye moño y aroma"],
-  },
-  {
-    id: "mini-burbuja",
-    name: "Mini Burbuja",
-    category: "Recordatorios",
-    image: asset("mini-burbuja.jpg"),
-    description: "Diseño contemporáneo y versátil que se adapta a cualquier temática.",
-    variants: [
-      { name: "Empaque acetato", price: 7000 },
-      { name: "Hablador personalizado", price: 6100 },
-      { name: "Empaque tull", price: 5500 },
-    ],
-    notes: ["Color a elección", "Base, caja o tarjeta personalizada", "Incluye aroma"],
-  },
-  {
-    id: "mini-compota",
-    name: "Mini Compota",
-    category: "Recordatorios",
-    image: asset("mini-compota.jpg"),
-    description: "Una velita práctica con sticker temático y mucha capacidad de personalización.",
-    variants: [{ name: "Mini compota personalizada", price: 6200 }],
-    notes: ["Disponible desde 12 unidades", "Sticker, tarjeta o base personalizada", "Aroma incluido"],
-  },
-  {
-    id: "concha",
-    name: "Concha",
-    category: "Recordatorios",
-    image: asset("concha.jpg"),
-    description: "Textura marina y acabado elegante para eventos frescos y delicados.",
-    variants: [
-      { name: "Hablador personalizado", price: 8300 },
-      { name: "Empaque acetato", price: 7000 },
-      { name: "Empaque tull", price: 5200 },
-    ],
-    notes: ["Color a elección", "Caja o tarjeta personalizada", "Incluye moño y aroma"],
-  },
-  {
-    id: "postre-mariposa",
-    name: "Postre Mariposa",
-    category: "Recordatorios",
-    image: asset("postre-mariposa.jpg"),
-    description: "Una mini vela tipo postre rematada con una mariposa delicada.",
-    variants: [
-      { name: "Acetato + base tipo postre", price: 8200 },
-      { name: "Empaque tull", price: 7500 },
-    ],
-    notes: ["Base, mariposa y nombre personalizados", "Incluye moño y aroma"],
-  },
-  {
-    id: "postre-marino",
-    name: "Postre Marino",
-    category: "Recordatorios",
-    image: asset("postre-marino.jpg"),
-    description: "Capas, color y detalles inspirados en el mar para una celebración especial.",
-    variants: [
-      { name: "Acetato + base tipo postre", price: 8200 },
-      { name: "Empaque tull", price: 7500 },
-    ],
-    notes: ["Color y nombre personalizados", "Incluye moño y aroma"],
-  },
-  {
-    id: "mini-postre",
-    name: "Mini Postre",
-    category: "Recordatorios",
-    image: asset("mini-postre.jpg"),
-    description: "Pequeño en tamaño, abundante en detalles y perfecto para regalar.",
-    variants: [
-      { name: "Empaque acetato", price: 8300 },
-      { name: "Hablador personalizado", price: 7800 },
-    ],
-    notes: ["Color y nombre de la base a elección", "Incluye moño y aroma"],
-  },
-  {
-    id: "maceta",
-    name: "Maceta",
-    category: "Recordatorios",
-    image: asset("maceta.jpg"),
-    description: "Una flor que no se marchita, presentada como un detalle dulce y artesanal.",
-    variants: [
-      { name: "Cajita", price: 9000 },
-      { name: "Empaque tull", price: 7900 },
-    ],
-    notes: ["Color a elección", "Mensaje personalizado", "Incluye moño y aroma"],
-  },
-  {
-    id: "mini-suculentas",
-    name: "Mini Suculentas",
-    category: "Recordatorios",
-    image: asset("mini-suculentas.jpg"),
-    description: "Una pequeña maceta de cera con estética botánica y nombre personalizado.",
-    variants: [{ name: "Empaque acetato", price: 8300 }],
-    notes: ["Color de base y suculenta a elección", "Incluye moño y aroma"],
-  },
-  {
-    id: "margarita",
-    name: "Margarita",
-    category: "Recordatorios",
-    image: asset("margarita.jpg"),
-    description: "Una flor limpia y alegre, disponible en tres presentaciones.",
-    variants: [
-      { name: "Cajita", price: 6000 },
-      { name: "Domo", price: 5500 },
-      { name: "Empaque tull", price: 4500 },
-    ],
-    notes: ["Color a elección", "Mensaje personalizado según empaque", "Incluye aroma"],
-  },
-  {
-    id: "peonia",
-    name: "Peonía",
-    category: "Recordatorios",
-    image: asset("peonia.jpg"),
-    description: "Volumen floral y una presencia elegante para regalar en cualquier ocasión.",
-    variants: [{ name: "Cajita", price: 10000 }],
-    notes: ["Color a elección", "Tarjeta personalizada desde 6 unidades", "Incluye moño y aroma"],
-  },
-  {
-    id: "cocho",
-    name: "Cocho corazón o estrella",
-    category: "Recordatorios",
-    image: asset("cocho.jpg"),
-    description: "Frasco personalizado con pequeñas figuras de cera y nombre en vinilo.",
-    variants: [
-      { name: "Envase 100 ml", price: 8500 },
-      { name: "Envase 200 ml", price: 11500 },
-    ],
-    notes: ["Corazones o estrellas", "Color y nombre a elección", "Incluye aroma"],
-  },
-  {
-    id: "bomboneras",
-    name: "Bomboneras",
-    category: "Recordatorios",
-    image: asset("bombonera.jpg"),
-    description: "Una presentación generosa, decorativa y lista para convertirse en el centro de atención.",
-    variants: [
-      { name: "Bombonera", price: 25000 },
-      { name: "Bombonera con caja", price: 28500 },
-    ],
-    notes: ["Color a elección", "Decoración incluida", "Nombre en caja disponible"],
-  },
-  {
-    id: "tentacion-chocolate",
-    name: "Tentación de Chocolate",
-    category: "Postres",
-    image: asset("tentacion-chocolate.png"),
-    description: "Una vela de 350 g con apariencia de postre, toppings variados y aroma a chocolate.",
-    tag: "Aroma irresistible",
-    variants: [{ name: "Vela postre en envase de vidrio", price: 32500 }],
-    notes: ["350 g de cera", "Etiqueta personalizada con nombre", "Aroma chocolate"],
-  },
-  {
-    id: "brisa-arena",
-    name: "Brisa en la Arena",
-    category: "Postres",
-    image: asset("brisa-arena.jpg"),
-    description: "Un postre de cera inspirado en días tropicales, con textura, toppings y capas.",
-    variants: [{ name: "Vela postre en envase de vidrio", price: 32500 }],
-    notes: ["350 g de cera", "Aroma a elección", "Etiqueta personalizada con nombre"],
-  },
-  {
-    id: "mini-waffle",
-    name: "Mini Waffle + Helado",
-    category: "Postres",
-    image: asset("mini-waffle.png"),
-    description: "Un mini postre divertido con waffle, helado y acabados en tonos pastel.",
-    variants: [
-      { name: "Empaque cajita", price: 8000 },
-      { name: "Empaque tull", price: 7000 },
-    ],
-    notes: ["Color a elección", "Incluye moño y aroma"],
-  },
-  {
-    id: "torta-chorreada",
-    name: "Torta chorreada",
-    category: "Postres",
-    image: asset("torta-chorreada.jpg"),
-    description: "Una vela cremosa con efecto chorreado, flores y detalles para celebrar a lo grande.",
-    variants: [{ name: "Torta chorreada", price: 25000 }],
-    notes: ["Color a elección", "Incluye moño, aroma y caja"],
-  },
-  {
-    id: "torta-cremosa",
-    name: "Torta cremosa",
-    category: "Postres",
-    image: asset("torta-cremosa.jpg"),
-    description: "Texturas de crema y pequeños detalles de cera en una torta completamente artesanal.",
-    variants: [{ name: "Torta cremosa", price: 25000 }],
-    notes: ["Color a elección", "Incluye moño, aroma y caja"],
-  },
-  {
-    id: "cupcake",
-    name: "Cupcake",
-    category: "Postres",
-    image: asset("cupcake.png"),
-    description: "Un cupcake de cera con acabado cremoso, perfecto para regalar o decorar.",
-    variants: [{ name: "Cupcake", price: 20000 }],
-    notes: ["Color a elección", "Incluye moño, aroma y caja"],
-  },
-  {
-    id: "estuche-bolso",
-    name: "Estuche tipo bolso",
-    category: "Detalles",
-    image: asset("estuche-bolso.jpg"),
-    description: "Entre 13 y 15 velas personalizadas en un bolso rígido con lazo metálico.",
-    tag: "Regalo especial",
-    variants: [
-      { name: "Sin aroma", price: 75000 },
-      { name: "Con aroma", price: 85000 },
-    ],
-    notes: ["Colores negro, blanco y palo de rosa", "Color de las velas a elección", "Acabado premium"],
-  },
-  {
-    id: "ramo-redondo",
-    name: "Ramo redondo pequeño",
-    category: "Detalles",
-    image: asset("ramo-redondo.jpg"),
-    description: "Un ramo de cera con flores grandes y pequeñas, montado sobre una base rígida.",
-    variants: [
-      { name: "Sin aroma", price: 45000 },
-      { name: "Con aroma", price: 55000 },
-    ],
-    notes: ["2 a 3 velas grandes y 10 pequeñas", "Color a elección", "Base con papel coreano"],
-  },
-  {
-    id: "caja-madera",
-    name: "Caja en madera",
-    category: "Detalles",
-    image: asset("caja-madera.jpg"),
-    description: "Una composición elegante de 14 a 17 velas en caja de madera con tapa de vidrio.",
-    tag: "Premium",
-    variants: [
-      { name: "Sin aroma", price: 82000 },
-      { name: "Con aroma", price: 92000 },
-    ],
-    notes: ["Color a elección", "Incluye moño y tarjeta", "Caja reutilizable"],
-  },
-  {
-    id: "mini-ramito",
-    name: "Mini ramito",
-    category: "Detalles",
-    image: asset("mini-ramito.jpg"),
-    description: "Ocho flores surtidas con base en cera, listas para sorprender.",
-    variants: [{ name: "Mini ramito con 8 flores", price: 30000 }],
-  },
-  {
-    id: "caja-peonias",
-    name: "Caja Peonías & Oso",
-    category: "Detalles",
-    image: asset("caja-peonias.jpg"),
-    description: "Una caja abundante con dos peonías, un oso y diez flores de cera.",
-    variants: [{ name: "Caja completa", price: 40000 }],
-  },
-  {
-    id: "estuche-oso",
-    name: "Estuche Oso & Flores",
-    category: "Detalles",
-    image: asset("estuche-oso.jpg"),
-    description: "Osito pequeño acompañado por siete flores en un estuche con ventana.",
-    variants: [{ name: "Estuche completo", price: 37000 }],
-  },
-  {
-    id: "macarrones",
-    name: "Macarrones",
-    category: "Detalles",
-    image: asset("macarrones.jpg"),
-    description: "Una caja dulce a la vista; elige entre formato vela o wax melts.",
-    variants: [{ name: "Caja de macarrones", price: 32000 }],
-  },
-  {
-    id: "peonia-individual",
-    name: "Peonía individual",
-    category: "Detalles",
-    image: asset("peonia-individual.jpg"),
-    description: "Una flor protagonista con presentación sencilla y elegante.",
-    variants: [{ name: "Peonía", price: 10000 }],
-  },
-  {
-    id: "margarita-domo",
-    name: "Margarita en domo",
-    category: "Detalles",
-    image: asset("margarita-domo.jpg"),
-    description: "Margarita o corazón de cera en una presentación transparente.",
-    variants: [{ name: "Domo", price: 5500 }],
-  },
-  {
-    id: "mini-estuche-oso",
-    name: "Mini estuche con oso",
-    category: "Detalles",
-    image: asset("mini-estuche-oso.jpg"),
-    description: "Un osito con tres velitas surtidas en una caja compacta.",
-    variants: [{ name: "Mini estuche", price: 18000 }],
-  },
-  {
-    id: "estuche-flores",
-    name: "Estuche 8 flores",
-    category: "Detalles",
-    image: asset("estuche-flores.jpg"),
-    description: "Ocho flores surtidas en formato vela o wax melts.",
-    variants: [{ name: "Estuche con 8 flores", price: 28000 }],
-  },
-  {
-    id: "estuche-peonia",
-    name: "Estuche Peonía",
-    category: "Detalles",
-    image: asset("estuche-peonia.jpg"),
-    description: "Caja gruesa de cartón con una peonía y cinco velitas surtidas.",
-    variants: [{ name: "Estuche completo", price: 35000 }],
-  },
-];
-
-const variantAsset = (name: string) => asset(`variants/${name}`);
-
-// Each image follows the same order as the product's presentation list.
-const variantImageSets: Record<string, string[]> = {
-  elefante: ["p03-02.jpg", "p03-01.jpg", "p03-04.jpg", "p03-03.jpg"].map(variantAsset),
-  conejito: ["p04-02.jpg", "p04-01.jpg", "p04-04.jpg", "p04-03.jpg"].map(variantAsset),
-  "osito-peluche": ["p05-01.jpg", "p05-03.jpg", "p05-04.jpg", "p05-02.jpg"].map(variantAsset),
-  "oso-mini": ["p06-02.jpg", "p06-01.jpg"].map(variantAsset),
-  "oso-mono": ["p07-02.jpg", "p07-01.jpg"].map(variantAsset),
-  "winnie-pooh": ["p08-01.jpg", "p08-02.jpg", "p08-03.jpg"].map(variantAsset),
-  leoncito: ["p09-01.jpg", "p09-02.jpg", "p09-03.jpg"].map(variantAsset),
-  "leoncito-3d": ["p10-01.jpg", "p10-02.jpg", "p10-03.jpg"].map(variantAsset),
-  piecitos: ["p11-01.jpg", "p11-02.jpg", "p11-03.jpg"].map(variantAsset),
-  virgencita: ["p12-02.jpg", "p12-01.jpg", "p12-03.jpg"].map(variantAsset),
-  angelito: ["p13-02.jpg", "p13-01.jpg", "p13-03.jpg"].map(variantAsset),
-  crucecita: ["p14-01.jpg", "p14-02.jpg"].map(variantAsset),
-  perrito: ["p15-01.jpg", "p15-02.jpg", "p15-03.jpg"].map(variantAsset),
-  "mini-burbuja": ["p16-02.jpg", "p16-01.jpg", "p16-03.jpg"].map(variantAsset),
-  concha: [variantAsset("p18-01.jpg"), variantAsset("concha-acetato.png"), variantAsset("p18-02.jpg")],
-  "postre-mariposa": ["p19-01.jpg", "p19-02.jpg"].map(variantAsset),
-  "postre-marino": ["p20-01.jpg", "p20-02.jpg"].map(variantAsset),
-  "mini-postre": ["p21-01.jpg", "p21-02.jpg"].map(variantAsset),
-  maceta: ["p22-02.jpg", "p22-01.jpg"].map(variantAsset),
-  margarita: ["p24-01.jpg", "p24-02.jpg", "p24-03.jpg"].map(variantAsset),
-  cocho: ["p26-01.jpg", "p26-02.jpg"].map(variantAsset),
-  bomboneras: ["p27-01.jpg", "p27-02.jpg"].map(variantAsset),
-  "mini-waffle": [variantAsset("mini-waffle-cajita.png"), variantAsset("mini-waffle-tull.png")],
-};
-
 const getVariantImages = (product: Product, index: number) => {
   const managedImages = product.variants[index]?.images?.filter(Boolean) ?? [];
   if (managedImages.length) return managedImages;
-  return [variantImageSets[product.id]?.[index] ?? product.image];
+  return product.image ? [product.image] : [];
 };
 
 const getVariantImage = (product: Product, index: number, imageIndex = 0) =>
   getVariantImages(product, index)[imageIndex] ?? getVariantImages(product, index)[0] ?? product.image;
 
 const getVariantGalleryCount = (product: Product) =>
-  product.variants.some((variant) => variant.images?.length)
+  product.variants.length > 1 && product.variants.some((variant) => variant.images?.some(Boolean))
     ? product.variants.length
-    : variantImageSets[product.id]?.length ?? 0;
+    : 0;
 
 const formatPrice = (value: number) =>
   new Intl.NumberFormat("es-CO", {
@@ -611,10 +100,12 @@ function App() {
   const [cardVariantIndexes, setCardVariantIndexes] = useState<Record<string, number>>({});
   const [menuOpen, setMenuOpen] = useState(false);
   const [cms, setCms] = useState<GoluCmsData | null>(null);
+  const [cmsLoading, setCmsLoading] = useState(true);
+  const [cmsError, setCmsError] = useState(false);
 
-  const siteProducts: Product[] = cms?.products.length ? cms.products : products;
+  const siteProducts: Product[] = cms?.products ?? [];
   const content = (key: string) => cms?.content[key];
-  const managedImage = (key: string, fallback: string) => cms?.images[key]?.[0]?.url || fallback;
+  const managedImage = (key: string) => cms?.images[key]?.[0]?.url || "";
   const managedImageAlt = (key: string, fallback: string) => cms?.images[key]?.[0]?.alt || fallback;
   const whatsappNumber = content("contact.whatsapp")?.body || fallbackWhatsappNumber;
   const defaultWhatsappMessage = content("contact.whatsapp_message")?.body
@@ -655,17 +146,61 @@ function App() {
 
   useEffect(() => {
     let active = true;
-    loadGoluCms()
-      .then((data) => {
-        if (active && data) setCms(data);
-      })
-      .catch((error) => {
-        console.warn("No se pudo cargar el CMS de Fresa; se conserva el catálogo local.", error);
-      });
+    let refreshing = false;
+
+    const refreshCms = async () => {
+      if (refreshing) return;
+      refreshing = true;
+
+      try {
+        const data = await loadGoluCms();
+        if (!active) return;
+        if (!data) throw new Error("Fresa CMS no está configurado");
+        setCms(data);
+        setCmsLoading(false);
+        setCmsError(false);
+      } catch (error) {
+        if (!active) return;
+        setCmsLoading(false);
+        setCmsError(true);
+        console.warn("No se pudo sincronizar el CMS de Fresa; se conserva el último estado recibido.", error);
+      } finally {
+        refreshing = false;
+      }
+    };
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void refreshCms();
+    };
+
+    void refreshCms();
+    const interval = window.setInterval(() => void refreshCms(), 15_000);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    window.addEventListener("focus", refreshWhenVisible);
+
     return () => {
       active = false;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+      window.removeEventListener("focus", refreshWhenVisible);
     };
   }, []);
+
+  useEffect(() => {
+    if (!selectedProduct || !cms) return;
+
+    const freshProduct = cms.products.find((product) => product.id === selectedProduct.id);
+    if (!freshProduct) {
+      setSelectedProduct(null);
+      return;
+    }
+
+    if (freshProduct !== selectedProduct) {
+      setSelectedProduct(freshProduct);
+      setSelectedVariantIndex((currentIndex) => Math.min(currentIndex, freshProduct.variants.length - 1));
+      setSelectedImageIndex(0);
+    }
+  }, [cms, selectedProduct]);
 
   useEffect(() => {
     if (!selectedProduct) return;
@@ -727,6 +262,12 @@ function App() {
   const contactEmail = content("contact.email");
   const contactInstagram = content("contact.instagram");
   const footer = content("footer.main");
+  const displayedVariantIndex = selectedProduct
+    ? Math.min(selectedVariantIndex, Math.max(0, selectedProduct.variants.length - 1))
+    : 0;
+  const selectedVariant = selectedProduct?.variants[displayedVariantIndex];
+  const selectedVariantImages = selectedProduct ? getVariantImages(selectedProduct, displayedVariantIndex) : [];
+  const selectedImage = selectedVariantImages[selectedImageIndex] ?? selectedVariantImages[0] ?? "";
 
   return (
     <div className="site-shell">
@@ -796,23 +337,29 @@ function App() {
 
           <div className="hero-gallery" aria-label="Selección de productos Golu">
             <figure className="hero-image hero-image-main">
-              <img
-                src={managedImage("home.hero.image.1", asset("hero-collage.jpg"))}
-                alt={managedImageAlt("home.hero.image.1", "Colección de velas florales Golu en estuches")}
-              />
+              {managedImage("home.hero.image.1") && (
+                <img
+                  src={managedImage("home.hero.image.1")}
+                  alt={managedImageAlt("home.hero.image.1", "Colección de velas florales Golu en estuches")}
+                />
+              )}
               <figcaption>Hecho con intención</figcaption>
             </figure>
             <figure className="hero-image hero-image-small hero-image-top">
-              <img
-                src={managedImage("home.hero.image.2", asset("hero-bouquet.jpg"))}
-                alt={managedImageAlt("home.hero.image.2", "Ramo artesanal de flores de cera")}
-              />
+              {managedImage("home.hero.image.2") && (
+                <img
+                  src={managedImage("home.hero.image.2")}
+                  alt={managedImageAlt("home.hero.image.2", "Ramo artesanal de flores de cera")}
+                />
+              )}
             </figure>
             <figure className="hero-image hero-image-small hero-image-bottom">
-              <img
-                src={managedImage("home.hero.image.3", asset("hero-flowers.jpg"))}
-                alt={managedImageAlt("home.hero.image.3", "Velas artesanales en tonos rosados")}
-              />
+              {managedImage("home.hero.image.3") && (
+                <img
+                  src={managedImage("home.hero.image.3")}
+                  alt={managedImageAlt("home.hero.image.3", "Velas artesanales en tonos rosados")}
+                />
+              )}
             </figure>
             <span className="hero-stamp" aria-hidden="true">GOLU<br />con amor</span>
           </div>
@@ -863,11 +410,25 @@ function App() {
             </label>
           </div>
 
-          <div className="results-meta" aria-live="polite">
-            {filteredProducts.length} {filteredProducts.length === 1 ? "referencia" : "referencias"}
-          </div>
+          {cms && (
+            <div className="results-meta" aria-live="polite">
+              {filteredProducts.length} {filteredProducts.length === 1 ? "referencia" : "referencias"}
+            </div>
+          )}
 
-          {filteredProducts.length ? catalogGroups.map((group) => {
+          {cmsLoading && !cms ? (
+            <div className="empty-state">
+              <Sparkles size={30} />
+              <h3>Cargando catálogo</h3>
+              <p>Estamos consultando las referencias actuales en Fresa.</p>
+            </div>
+          ) : cmsError && !cms ? (
+            <div className="empty-state">
+              <X size={30} />
+              <h3>No se pudo cargar el catálogo</h3>
+              <p>Vuelve a intentarlo en unos momentos para consultar Fresa.</p>
+            </div>
+          ) : filteredProducts.length ? catalogGroups.map((group) => {
             const groupProducts = filteredProducts.filter((product) => product.category === group.category);
             if (!groupProducts.length) return null;
 
@@ -888,8 +449,11 @@ function App() {
                   {groupProducts.map((product) => {
                     const galleryCount = getVariantGalleryCount(product);
                     const hasVariantGallery = galleryCount > 1;
-                    const cardVariantIndex = hasVariantGallery ? (cardVariantIndexes[product.id] ?? 0) : 0;
+                    const cardVariantIndex = hasVariantGallery
+                      ? Math.min(cardVariantIndexes[product.id] ?? 0, product.variants.length - 1)
+                      : 0;
                     const cardVariant = product.variants[cardVariantIndex] ?? product.variants[0];
+                    const cardImage = getVariantImage(product, cardVariantIndex);
 
                     return (
                       <article className="product-card" key={product.id}>
@@ -900,12 +464,16 @@ function App() {
                             onClick={() => openProduct(product, cardVariantIndex)}
                             aria-label={`Ver detalles de ${product.name}, ${cardVariant.name}`}
                           >
-                            <img
-                              key={getVariantImage(product, cardVariantIndex)}
-                              src={getVariantImage(product, cardVariantIndex)}
-                              alt={`${product.name} - ${cardVariant.name}`}
-                              loading="lazy"
-                            />
+                            {cardImage ? (
+                              <img
+                                key={cardImage}
+                                src={cardImage}
+                                alt={`${product.name} - ${cardVariant.name}`}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <span className="product-image-missing">Imagen no disponible</span>
+                            )}
                             {product.tag && <span className="product-tag">{product.tag}</span>}
                             <span className="product-view">Ver detalle <ArrowRight size={15} /></span>
                           </button>
@@ -966,11 +534,13 @@ function App() {
 
         <section className="custom-section" id="personaliza">
           <div className="custom-visual">
-            <img
-              src={managedImage("customize.image", asset("hero-flowers.jpg"))}
-              alt={managedImageAlt("customize.image", "Flores y velas artesanales Golu")}
-              loading="lazy"
-            />
+            {managedImage("customize.image") && (
+              <img
+                src={managedImage("customize.image")}
+                alt={managedImageAlt("customize.image", "Flores y velas artesanales Golu")}
+                loading="lazy"
+              />
+            )}
             <div className="custom-card">
               <Heart size={22} fill="currentColor" />
               <span>Cada pedido</span>
@@ -1046,7 +616,7 @@ function App() {
         <span>Cotiza aquí</span>
       </a>
 
-      {selectedProduct && (
+      {selectedProduct && selectedVariant && (
         <div className="modal-backdrop" role="presentation" onMouseDown={() => setSelectedProduct(null)}>
           <section
             className="product-modal"
@@ -1059,18 +629,22 @@ function App() {
               <X size={20} />
             </button>
             <div className="modal-image">
-              <img
-                key={getVariantImage(selectedProduct, selectedVariantIndex, selectedImageIndex)}
-                src={getVariantImage(selectedProduct, selectedVariantIndex, selectedImageIndex)}
-                alt={`${selectedProduct.name} - ${selectedProduct.variants[selectedVariantIndex].name}`}
-              />
+              {selectedImage ? (
+                <img
+                  key={selectedImage}
+                  src={selectedImage}
+                  alt={`${selectedProduct.name} - ${selectedVariant.name}`}
+                />
+              ) : (
+                <span className="product-image-missing">Imagen no disponible</span>
+              )}
               <div className="modal-image-labels">
                 <span>{selectedProduct.category}</span>
-                <strong>{selectedProduct.variants[selectedVariantIndex].name}</strong>
+                <strong>{selectedVariant.name}</strong>
               </div>
-              {getVariantImages(selectedProduct, selectedVariantIndex).length > 1 && (
+              {selectedVariantImages.length > 1 && (
                 <div className="modal-image-thumbnails" aria-label="Más imágenes de esta presentación">
-                  {getVariantImages(selectedProduct, selectedVariantIndex).map((image, index) => (
+                  {selectedVariantImages.map((image, index) => (
                     <button
                       className={selectedImageIndex === index ? "active" : ""}
                       type="button"
@@ -1097,16 +671,20 @@ function App() {
                 <div className="variant-cards">
                   {selectedProduct.variants.map((variant, index) => (
                     <button
-                      className={selectedVariantIndex === index ? "variant-card active" : "variant-card"}
+                      className={displayedVariantIndex === index ? "variant-card active" : "variant-card"}
                       type="button"
                       key={`${selectedProduct.id}-${variant.name}`}
                       onClick={() => {
                         setSelectedVariantIndex(index);
                         setSelectedImageIndex(0);
                       }}
-                      aria-pressed={selectedVariantIndex === index}
+                      aria-pressed={displayedVariantIndex === index}
                     >
-                      <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="lazy" />
+                      {getVariantImage(selectedProduct, index) ? (
+                        <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="lazy" />
+                      ) : (
+                        <span className="product-image-missing">Sin imagen</span>
+                      )}
                       <span className="variant-card-copy">
                         <span>{variant.name}</span>
                         <strong>{formatPrice(variant.price)}</strong>
@@ -1123,7 +701,7 @@ function App() {
               )}
               <a
                 className="button button-primary modal-cta"
-                href={getWhatsappLink(selectedProduct, selectedProduct.variants[selectedVariantIndex].name)}
+                href={getWhatsappLink(selectedProduct, selectedVariant.name)}
                 target="_blank"
                 rel="noreferrer"
               >
