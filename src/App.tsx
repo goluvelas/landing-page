@@ -30,6 +30,23 @@ type Product = {
   tag?: string;
 };
 
+const preloadedImageUrls = new Set<string>();
+
+function preloadImage(url: string) {
+  if (!url || preloadedImageUrls.has(url)) return;
+  preloadedImageUrls.add(url);
+  const image = new Image();
+  image.decoding = "async";
+  image.src = url;
+}
+
+function preloadProductImages(product: Product) {
+  [
+    product.image,
+    ...product.variants.flatMap((variant) => variant.images ?? []),
+  ].forEach(preloadImage);
+}
+
 const getVariantImages = (product: Product, index: number) => {
   const managedImages = product.variants[index]?.images?.filter(Boolean) ?? [];
   if (managedImages.length) return managedImages;
@@ -114,6 +131,7 @@ function App() {
     whatsappLink(whatsappNumber, defaultWhatsappMessage, product, variantName);
 
   const openProduct = (product: Product, variantIndex = 0) => {
+    preloadProductImages(product);
     setSelectedVariantIndex(variantIndex);
     setSelectedImageIndex(0);
     setSelectedProduct(product);
@@ -156,7 +174,7 @@ function App() {
         const data = await loadGoluCms();
         if (!active) return;
         if (!data) throw new Error("Fresa CMS no está configurado");
-        setCms(data);
+        setCms((current) => current?.version === data.version ? current : data);
         setCmsLoading(false);
         setCmsError(false);
       } catch (error) {
@@ -341,6 +359,9 @@ function App() {
                 <img
                   src={managedImage("home.hero.image.1")}
                   alt={managedImageAlt("home.hero.image.1", "Colección de velas florales Golu en estuches")}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
               )}
               <figcaption>Hecho con intención</figcaption>
@@ -350,6 +371,8 @@ function App() {
                 <img
                   src={managedImage("home.hero.image.2")}
                   alt={managedImageAlt("home.hero.image.2", "Ramo artesanal de flores de cera")}
+                  loading="eager"
+                  decoding="async"
                 />
               )}
             </figure>
@@ -358,6 +381,8 @@ function App() {
                 <img
                   src={managedImage("home.hero.image.3")}
                   alt={managedImageAlt("home.hero.image.3", "Velas artesanales en tonos rosados")}
+                  loading="eager"
+                  decoding="async"
                 />
               )}
             </figure>
@@ -462,6 +487,8 @@ function App() {
                             className="product-image-open"
                             type="button"
                             onClick={() => openProduct(product, cardVariantIndex)}
+                            onPointerEnter={() => preloadProductImages(product)}
+                            onFocus={() => preloadProductImages(product)}
                             aria-label={`Ver detalles de ${product.name}, ${cardVariant.name}`}
                           >
                             {cardImage ? (
@@ -470,6 +497,7 @@ function App() {
                                 src={cardImage}
                                 alt={`${product.name} - ${cardVariant.name}`}
                                 loading="lazy"
+                                decoding="async"
                               />
                             ) : (
                               <span className="product-image-missing">Imagen no disponible</span>
@@ -539,6 +567,7 @@ function App() {
                 src={managedImage("customize.image")}
                 alt={managedImageAlt("customize.image", "Flores y velas artesanales Golu")}
                 loading="lazy"
+                decoding="async"
               />
             )}
             <div className="custom-card">
@@ -630,10 +659,12 @@ function App() {
             </button>
             <div className="modal-image">
               {selectedImage ? (
-                <img
+              <img
                   key={selectedImage}
                   src={selectedImage}
                   alt={`${selectedProduct.name} - ${selectedVariant.name}`}
+                  fetchPriority="high"
+                  decoding="async"
                 />
               ) : (
                 <span className="product-image-missing">Imagen no disponible</span>
@@ -653,7 +684,7 @@ function App() {
                       aria-label={`Ver imagen ${index + 1}`}
                       aria-pressed={selectedImageIndex === index}
                     >
-                      <img src={image} alt="" loading="lazy" />
+                      <img src={image} alt="" loading="eager" decoding="async" />
                     </button>
                   ))}
                 </div>
@@ -681,7 +712,7 @@ function App() {
                       aria-pressed={displayedVariantIndex === index}
                     >
                       {getVariantImage(selectedProduct, index) ? (
-                        <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="lazy" />
+                        <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="eager" decoding="async" />
                       ) : (
                         <span className="product-image-missing">Sin imagen</span>
                       )}

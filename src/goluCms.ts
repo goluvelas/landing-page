@@ -28,7 +28,7 @@ export type GoluCmsData = {
   products: GoluCmsProduct[];
   content: Record<string, GoluContentBlock>;
   images: Record<string, Array<{ url: string; alt: string }>>;
-  cacheVersion: number;
+  version: number;
 };
 
 type ApiField = {
@@ -85,20 +85,11 @@ function values(task: ApiTask): Record<string, unknown> {
   }, {});
 }
 
-function cacheBustedImageUrl(url: string, cacheVersion: number): string {
-  const hashIndex = url.indexOf("#");
-  const base = hashIndex >= 0 ? url.slice(0, hashIndex) : url;
-  const hash = hashIndex >= 0 ? url.slice(hashIndex) : "";
-  const separator = base.includes("?") ? "&" : "?";
-  return `${base}${separator}_golu_refresh=${cacheVersion}${hash}`;
-}
-
-function imageUrls(value: unknown, cacheVersion: number): string[] {
+function imageUrls(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((item) => (item && typeof item === "object" ? text((item as { url?: unknown }).url) : ""))
-    .filter(Boolean)
-    .map((url) => cacheBustedImageUrl(url, cacheVersion));
+    .filter(Boolean);
 }
 
 function category(value: unknown): GoluCategory | null {
@@ -155,7 +146,7 @@ async function fetchTasks(apiUrl: string, apiKey: string, listId: string, cacheV
   throw new Error(`Fresa CMS exceeded the ${CMS_MAX_PAGES}-page safety limit`);
 }
 
-function parseProducts(tasks: ApiTask[], cacheVersion: number): GoluCmsProduct[] {
+function parseProducts(tasks: ApiTask[]): GoluCmsProduct[] {
   const taskValues = new Map(tasks.map((task) => [text(task.task_id), values(task)]));
   const presentationsByParent = new Map<string, ApiTask[]>();
 
@@ -175,7 +166,7 @@ function parseProducts(tasks: ApiTask[], cacheVersion: number): GoluCmsProduct[]
       const fields = taskValues.get(taskId) || {};
       if (text(fields.golu_record_type) !== "producto" || !boolean(fields.golu_visible)) return [];
       const productCategory = category(fields.golu_category);
-      const productImages = imageUrls(fields.golu_images, cacheVersion);
+      const productImages = imageUrls(fields.golu_images);
       if (!productCategory || !text(fields.golu_product_slug)) return [];
 
       const variants = (presentationsByParent.get(taskId) || [])
@@ -192,7 +183,7 @@ function parseProducts(tasks: ApiTask[], cacheVersion: number): GoluCmsProduct[]
           return [{
             name,
             price: number(variantFields.golu_price),
-            images: imageUrls(variantFields.golu_images, cacheVersion),
+            images: imageUrls(variantFields.golu_images),
           }];
         });
       if (!variants.length) return [];
@@ -216,7 +207,7 @@ function parseProducts(tasks: ApiTask[], cacheVersion: number): GoluCmsProduct[]
     });
 }
 
-function parseImages(tasks: ApiTask[], cacheVersion: number): GoluCmsData["images"] {
+function parseImages(tasks: ApiTask[]): GoluCmsData["images"] {
   return Object.fromEntries(
     tasks.flatMap((task) => {
       const fields = values(task);
@@ -224,7 +215,7 @@ function parseImages(tasks: ApiTask[], cacheVersion: number): GoluCmsData["image
       const key = text(fields.golu_cms_key);
       if (!["hero", "seccion"].includes(recordType) || !key || !boolean(fields.golu_visible)) return [];
       const alt = text(fields.golu_alt_text);
-      return [[key, imageUrls(fields.golu_images, cacheVersion).map((url) => ({ url, alt }))]];
+      return [[key, imageUrls(fields.golu_images).map((url) => ({ url, alt }))]];
     }),
   );
 }
@@ -263,12 +254,15 @@ export async function loadGoluCms(): Promise<GoluCmsData | null> {
     fetchTasks(apiUrl, apiKey, catalogListId, requestCacheVersion),
     fetchTasks(apiUrl, apiKey, contentListId, requestCacheVersion),
   ]);
-  const imageCacheVersion = hash(JSON.stringify(catalogTasks));
+  const products = parseProducts(catalogTasks);
+  const images = parseImages(catalogTasks);
+  const content = parseContent(contentTasks);
+  const version = hash(JSON.stringify({ products, images, content }));
 
   return {
-    products: parseProducts(catalogTasks, imageCacheVersion),
-    images: parseImages(catalogTasks, imageCacheVersion),
-    content: parseContent(contentTasks),
-    cacheVersion: imageCacheVersion,
+    products,
+    images,
+    content,
+    version,
   };
 }
