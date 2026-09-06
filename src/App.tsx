@@ -215,7 +215,7 @@ function App() {
 
     if (freshProduct !== selectedProduct) {
       setSelectedProduct(freshProduct);
-      setSelectedVariantIndex((currentIndex) => Math.min(currentIndex, freshProduct.variants.length - 1));
+      setSelectedVariantIndex((currentIndex) => Math.min(currentIndex, Math.max(0, freshProduct.variants.length - 1)));
       setSelectedImageIndex(0);
     }
   }, [cms, selectedProduct]);
@@ -478,6 +478,10 @@ function App() {
                       ? Math.min(cardVariantIndexes[product.id] ?? 0, product.variants.length - 1)
                       : 0;
                     const cardVariant = product.variants[cardVariantIndex] ?? product.variants[0];
+                    const cardVariantName = cardVariant?.name || "Disponible para cotizar";
+                    const lowestPrice = product.variants.length
+                      ? Math.min(...product.variants.map((variant) => variant.price))
+                      : null;
                     const cardImage = getVariantImage(product, cardVariantIndex);
 
                     return (
@@ -489,13 +493,13 @@ function App() {
                             onClick={() => openProduct(product, cardVariantIndex)}
                             onPointerEnter={() => preloadProductImages(product)}
                             onFocus={() => preloadProductImages(product)}
-                            aria-label={`Ver detalles de ${product.name}, ${cardVariant.name}`}
+                            aria-label={`Ver detalles de ${product.name}, ${cardVariantName}`}
                           >
                             {cardImage ? (
                               <img
                                 key={cardImage}
                                 src={cardImage}
-                                alt={`${product.name} - ${cardVariant.name}`}
+                                alt={`${product.name} - ${cardVariantName}`}
                                 loading="lazy"
                                 decoding="async"
                               />
@@ -535,11 +539,13 @@ function App() {
                           <span className="product-category">{product.category}</span>
                           <div className="product-title-row">
                             <h3>{product.name}</h3>
-                            <span className="product-price">Desde {formatPrice(Math.min(...product.variants.map((variant) => variant.price)))}</span>
+                            <span className="product-price">
+                              {lowestPrice === null ? "Cotizar" : `Desde ${formatPrice(lowestPrice)}`}
+                            </span>
                           </div>
                           <p>{product.description}</p>
                           <button type="button" className="product-link" onClick={() => openProduct(product, cardVariantIndex)}>
-                            Presentaciones <ChevronRight size={16} />
+                            {product.variants.length ? "Presentaciones" : "Ver detalle"} <ChevronRight size={16} />
                           </button>
                         </div>
                       </article>
@@ -645,7 +651,7 @@ function App() {
         <span>Cotiza aquí</span>
       </a>
 
-      {selectedProduct && selectedVariant && (
+      {selectedProduct && (
         <div className="modal-backdrop" role="presentation" onMouseDown={() => setSelectedProduct(null)}>
           <section
             className="product-modal"
@@ -662,7 +668,7 @@ function App() {
               <img
                   key={selectedImage}
                   src={selectedImage}
-                  alt={`${selectedProduct.name} - ${selectedVariant.name}`}
+                  alt={`${selectedProduct.name} - ${selectedVariant?.name || "Referencia"}`}
                   fetchPriority="high"
                   decoding="async"
                 />
@@ -671,7 +677,7 @@ function App() {
               )}
               <div className="modal-image-labels">
                 <span>{selectedProduct.category}</span>
-                <strong>{selectedVariant.name}</strong>
+                <strong>{selectedVariant?.name || "Presentación por definir"}</strong>
               </div>
               {selectedVariantImages.length > 1 && (
                 <div className="modal-image-thumbnails" aria-label="Más imágenes de esta presentación">
@@ -694,37 +700,46 @@ function App() {
               <span className="eyebrow">Referencia Golu</span>
               <h2 id="modal-title">{selectedProduct.name}</h2>
               <p className="modal-description">{selectedProduct.description}</p>
-              <div className="variant-list">
-                <div className="variant-heading">
-                  <span className="variant-label">Elige una presentación</span>
-                  <small>Selecciona una foto para verla en detalle</small>
+              {selectedProduct.variants.length ? (
+                <div className="variant-list">
+                  <div className="variant-heading">
+                    <span className="variant-label">Elige una presentación</span>
+                    <small>Selecciona una foto para verla en detalle</small>
+                  </div>
+                  <div className="variant-cards">
+                    {selectedProduct.variants.map((variant, index) => (
+                      <button
+                        className={displayedVariantIndex === index ? "variant-card active" : "variant-card"}
+                        type="button"
+                        key={`${selectedProduct.id}-${variant.name}`}
+                        onClick={() => {
+                          setSelectedVariantIndex(index);
+                          setSelectedImageIndex(0);
+                        }}
+                        aria-pressed={displayedVariantIndex === index}
+                      >
+                        {getVariantImage(selectedProduct, index) ? (
+                          <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="eager" decoding="async" />
+                        ) : (
+                          <span className="product-image-missing">Sin imagen</span>
+                        )}
+                        <span className="variant-card-copy">
+                          <span>{variant.name}</span>
+                          <strong>{formatPrice(variant.price)}</strong>
+                        </span>
+                        <span className="variant-check" aria-hidden="true"><Check size={13} /></span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="variant-cards">
-                  {selectedProduct.variants.map((variant, index) => (
-                    <button
-                      className={displayedVariantIndex === index ? "variant-card active" : "variant-card"}
-                      type="button"
-                      key={`${selectedProduct.id}-${variant.name}`}
-                      onClick={() => {
-                        setSelectedVariantIndex(index);
-                        setSelectedImageIndex(0);
-                      }}
-                      aria-pressed={displayedVariantIndex === index}
-                    >
-                      {getVariantImage(selectedProduct, index) ? (
-                        <img src={getVariantImage(selectedProduct, index)} alt={`Presentación ${variant.name}`} loading="eager" decoding="async" />
-                      ) : (
-                        <span className="product-image-missing">Sin imagen</span>
-                      )}
-                      <span className="variant-card-copy">
-                        <span>{variant.name}</span>
-                        <strong>{formatPrice(variant.price)}</strong>
-                      </span>
-                      <span className="variant-check" aria-hidden="true"><Check size={13} /></span>
-                    </button>
-                  ))}
+              ) : (
+                <div className="variant-list">
+                  <div className="variant-heading">
+                    <span className="variant-label">Presentación por definir</span>
+                    <small>Esta referencia ya está disponible para cotizar y confirmar sus opciones.</small>
+                  </div>
                 </div>
-              </div>
+              )}
               {selectedProduct.notes && (
                 <ul className="modal-notes">
                   {selectedProduct.notes.map((note) => <li key={note}><Check size={15} /> {note}</li>)}
@@ -732,7 +747,7 @@ function App() {
               )}
               <a
                 className="button button-primary modal-cta"
-                href={getWhatsappLink(selectedProduct, selectedVariant.name)}
+                href={getWhatsappLink(selectedProduct, selectedVariant?.name)}
                 target="_blank"
                 rel="noreferrer"
               >

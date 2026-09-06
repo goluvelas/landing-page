@@ -264,8 +264,6 @@ function parseProducts(tasks: ApiTask[]): GoluCmsProduct[] {
             images: imageUrls(variantFields.golu_images),
           }];
         });
-      if (!variants.length) return [];
-
       return [{
         id: text(fields.golu_product_slug),
         name: text(task.name),
